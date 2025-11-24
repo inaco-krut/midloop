@@ -1,0 +1,39 @@
+/* Score Icon */
+/* Score Icon */
+/* Score Icon */
+/* Score Icon */
+.score-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid var(--score-color);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  transform: scale(0) rotate(-180deg);
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 10;
+  box-shadow: 0 0 20px var(--score-color);
+}
+
+.movie-card:hover .score-icon {
+  transform: scale(1) rotate(0deg);
+}
+
+.score-value {
+  font-family: "Google Sans Flex", sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  text-shadow: 0 0 10px var(--score-color);
+  line-height: 1;
+}
+
+/* Adjust movie poster to handle absolute positioning of icon */
+.movie-poster {
+  position: relative;
+}
