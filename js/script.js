@@ -97,17 +97,56 @@ function scrambleText(element, targetText, duration = 350) {
   update();
 }
 
-// Menu click handlers
-// Menu click handlers
+// Menu click handlers and History API logic
 document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.querySelectorAll('.nav-link');
   const categoryText = document.querySelector('.category-text');
+
+  // Helper to get category from URL
+  function getCategoryFromUrl() {
+    const path = window.location.pathname.replace(/^\/+/, ''); // Remove leading slash
+    // Default to 'movies' if root or empty
+    if (!path) return 'movies';
+    // Check if path is a valid category
+    if (Object.keys(categoryNames).includes(path)) return path;
+    // Fallback to movies for unknown paths
+    return 'movies';
+  }
+
+  // Helper to update UI state
+  function updateUI(category) {
+    const categoryName = categoryNames[category];
+
+    // Remove active class from all links
+    navLinks.forEach(l => {
+      l.classList.remove('active');
+      l.removeAttribute('aria-current');
+    });
+
+    // Add active class to current category link
+    const activeLink = document.querySelector(`.nav-link[data-category="${category}"]`);
+    if (activeLink) {
+      activeLink.classList.add('active');
+      activeLink.setAttribute('aria-current', 'page');
+    }
+
+    if (categoryName) {
+      scrambleText(categoryText, categoryName, 350);
+    }
+
+    loadContent(category);
+  }
+
+  // Handle Back/Forward buttons
+  window.addEventListener('popstate', (e) => {
+    const category = getCategoryFromUrl();
+    updateUI(category);
+  });
 
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const category = link.getAttribute('data-category');
-      const categoryName = categoryNames[category];
 
       // Check if this link is already active
       const isAlreadyActive = link.classList.contains('active');
@@ -120,6 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         return;
       }
+
+      // Push state to history
+      history.pushState(null, '', `/${category}`);
 
       // Check current scroll position
       const scrollThreshold = 300; // Only scroll to top if scrolled more than 300px
@@ -134,241 +176,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Wait for scroll to complete before changing content
         setTimeout(() => {
-          // Remove active class from all links
-          navLinks.forEach(l => l.classList.remove('active'));
-
-          // Add active class to clicked link
-          link.classList.add('active');
-
-          if (categoryName) {
-            scrambleText(categoryText, categoryName, 350);
-          }
-
-          loadContent(category);
+          updateUI(category);
         }, 500); // 500ms delay to allow smooth scroll to complete
       } else {
         // Already near the top, change immediately
-        // Remove active class from all links
-        navLinks.forEach(l => l.classList.remove('active'));
-
-        // Add active class to clicked link
-        link.classList.add('active');
-
-        if (categoryName) {
-          scrambleText(categoryText, categoryName, 350);
-        }
-
-        loadContent(category);
+        updateUI(category);
       }
     });
   });
 
-  // Initial load
-  loadContent('movies');
+  // Initial load based on URL
+  const initialCategory = getCategoryFromUrl();
+
+  // Update history state for initial load to ensure consistency
+  // If we are at root /, this will rewrite it to /movies which might be desired or not.
+  // If user wants to keep / as alias for /movies, we can skip replaceState if path is empty.
+  // But for clean canonical URLs, let's stick to the category name.
+  if (window.location.pathname === '/' || window.location.pathname === '') {
+    history.replaceState(null, '', `/${initialCategory}`);
+  }
+
+  updateUI(initialCategory);
 
   // Modal functionality
   setupModal();
 });
 
-function loadContent(category) {
-  let dataFile = '';
-  if (category === 'movies') {
-    dataFile = 'shared-data/data.json';
-  } else if (category === 'tv-shows') {
-    dataFile = 'shared-data/data_tv_shows.json';
-  } else if (category === 'games') {
-    dataFile = 'shared-data/data_games.json';
-  } else {
-    const container = document.getElementById('movies-container');
-    // Fade out, change content, fade in
-    container.style.transition = 'opacity 0.3s ease';
-    container.style.opacity = '0';
-    setTimeout(() => {
-      container.innerHTML = '\u003cp class=\"error\" style=\"text-align: center; padding: 2rem; color: var(--text-color);\"\u003eComing Soon...\u003c/p\u003e';
-      container.style.opacity = '1';
-    }, 300);
-    return;
-  }
+// Adapter Pattern Implementation
 
-  const container = document.getElementById('movies-container');
-
-  // Fade out current content
-  container.style.transition = 'opacity 0.3s ease';
-  container.style.opacity = '0';
-
-  // Wait for fade out, then fetch and display new content
-  setTimeout(() => {
-    fetch(dataFile)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        displayMovies(data);
-        // Fade in new content
-        setTimeout(() => {
-          container.style.opacity = '1';
-        }, 50);
-      })
-      .catch(error => {
-        console.error('Error loading data:', error);
-        container.innerHTML = '\u003cp class=\"error\"\u003eError loading content. Please try again later.\u003c/p\u003e';
-        container.style.opacity = '1';
-      });
-  }, 300);
-}
-
-function displayMovies(movies) {
-  const container = document.getElementById('movies-container');
-  container.innerHTML = ''; // Clear loading message
-
-  // Store movies globally for modal navigation
-  currentMoviesArray = movies;
-
-  movies.forEach((movie, index) => {
-    const card = document.createElement('div');
-    card.className = 'movie-card';
-
-    // Detect if this is a game (has 'name' instead of 'title')
-    const isGame = movie.name && !movie.title;
-
-    // Security: Sanitize poster URL
-    // Games use direct URLs, movies/TV use TMDB base
-    let rawPosterUrl;
-    if (isGame) {
-      rawPosterUrl = movie.poster_path || 'shared-data/placeholder_poster.jpg';
-    } else {
-      rawPosterUrl = (!movie.poster_path || movie.poster_path === 'placeholder_poster.jpg')
-        ? 'shared-data/placeholder_poster.jpg'
-        : TMDB_IMAGE_BASE + movie.poster_path;
-    }
-    const posterUrl = sanitizeURL(rawPosterUrl);
-
-    // Handle different date formats
-    let releaseDate;
-    if (isGame) {
-      // Games use first_release_date (Unix timestamp)
-      if (movie.first_release_date) {
-        const timestamp = parseInt(movie.first_release_date) * 1000;
-        releaseDate = new Date(timestamp).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-      } else {
-        releaseDate = 'Release Date: TBA';
-      }
-    } else {
-      // Movies/TV use digital_release_date
-      releaseDate = movie.digital_release_date
-        ? new Date(movie.digital_release_date).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        })
-        : 'Release Date: TBA';
-    }
-
-    // Check if released today or already out
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate date comparison
-    let isReleasedToday = false;
-    let isAlreadyOut = false;
-
-    if (isGame && movie.first_release_date) {
-      const timestamp = parseInt(movie.first_release_date) * 1000;
-      const gameDate = new Date(timestamp);
-      gameDate.setHours(0, 0, 0, 0);
-
-      isReleasedToday =
-        today.getFullYear() === gameDate.getFullYear() &&
-        today.getMonth() === gameDate.getMonth() &&
-        today.getDate() === gameDate.getDate();
-
-      isAlreadyOut = gameDate < today;
-    } else if (!isGame && movie.digital_release_date) {
-      const parts = movie.digital_release_date.split('-');
-      if (parts.length === 3) {
-        const movieYear = parseInt(parts[0]);
-        const movieMonth = parseInt(parts[1]) - 1; // Months are 0-indexed
-        const movieDay = parseInt(parts[2]);
-
-        const movieDate = new Date(movieYear, movieMonth, movieDay);
-        movieDate.setHours(0, 0, 0, 0);
-
-        isReleasedToday =
-          today.getFullYear() === movieYear &&
-          today.getMonth() === movieMonth &&
-          today.getDate() === movieDay;
-
-        isAlreadyOut = movieDate < today;
-      }
-    }
-
-    if (isReleasedToday) {
-      card.classList.add('released-today');
-    }
-
-    const releaseBadge = isReleasedToday
-      ? '<div class="movie-status-badge status-new">Released Today</div>'
-      : isAlreadyOut
-        ? '<div class="movie-status-badge status-out">Available</div>'
-        : '';
-
-    // Security: Sanitize all user-controlled data before inserting into HTML
-    const itemTitle = isGame ? movie.name : movie.title;
-    const sanitizedTitle = sanitizeHTML(itemTitle || 'Untitled');
-    const sanitizedReleaseDate = sanitizeHTML(releaseDate);
-
-    // Handle genres differently for games
-    let primaryGenre = '';
-    if (isGame) {
-      // Games have genres as an array of strings
-      primaryGenre = movie.genres && movie.genres.length > 0 ? movie.genres[0] : '';
-    } else {
-      // Movies/TV have genre_ids
-      primaryGenre = movie.genre_ids && movie.genre_ids.length > 0 && genreMap[movie.genre_ids[0]]
-        ? genreMap[movie.genre_ids[0]]
-        : '';
-    }
-
-    const genreTag = primaryGenre
-      ? `<div class="movie-genre-tag">${sanitizeHTML(primaryGenre)}</div>`
-      : '';
-
-    // Handle rating differently for games
-    const rating = isGame ? movie.total_rating : movie.vote_average;
-
-    card.innerHTML = `
-      <div class="movie-poster">
-        <img src="${posterUrl}" alt="${sanitizedTitle}" loading="lazy">
-        ${releaseBadge}
-        ${genreTag}
-        <div class="movie-overlay">
-          ${getScoreIconHtml(rating)}
-          <button class="view-details">VIEW DETAILS</button>
-        </div>
-      </div>
-      <div class="movie-info">
-        <div class="movie-text-content">
-          <h3 class="movie-title">${sanitizedTitle}</h3>
-        </div>
-      </div>
-      <div class="movie-date-floating">
-        ${sanitizedReleaseDate}
-      </div>
-    `;
-
-    card.addEventListener('click', () => {
-      showMovieDetails(movie, index);
-    });
-
-    container.appendChild(card);
-  });
-}
-
+// Standardize Genre Map
 const genreMap = {
   28: "Action",
   12: "Adventure",
@@ -391,220 +227,454 @@ const genreMap = {
   37: "Western"
 };
 
-function showMovieDetails(movie, movieIndex = 0) {
-  const modal = document.getElementById('movie-modal');
-
-  // Detect if this is a game
-  const isGame = movie.name && !movie.title;
-
-  // Security: Sanitize poster URL
-  let rawPosterUrl;
-  if (isGame) {
-    rawPosterUrl = movie.poster_path || 'shared-data/placeholder_poster.jpg';
-  } else {
-    rawPosterUrl = (!movie.poster_path || movie.poster_path === 'placeholder_poster.jpg')
-      ? 'shared-data/placeholder_poster.jpg'
-      : TMDB_IMAGE_BASE + movie.poster_path;
+// Adapters
+function normalizeMovie(rawMovie) {
+  // Handle genres: rawMovie.genre_ids (array of IDs) -> array of strings
+  let genres = [];
+  if (rawMovie.genre_ids && rawMovie.genre_ids.length > 0) {
+    genres = rawMovie.genre_ids.map(id => genreMap[id]).filter(Boolean);
   }
-  const posterUrl = sanitizeURL(rawPosterUrl);
+
+  // Handle poster URL
+  const poster = (!rawMovie.poster_path || rawMovie.poster_path === 'placeholder_poster.jpg')
+    ? 'shared-data/placeholder_poster.jpg'
+    : TMDB_IMAGE_BASE + rawMovie.poster_path;
 
   // Handle release date
-  let releaseText;
-  if (isGame) {
-    if (movie.first_release_date) {
-      const timestamp = parseInt(movie.first_release_date) * 1000;
-      releaseText = `Release date: ${new Date(timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
-    } else {
-      releaseText = 'Release date coming soon';
+  const releaseDate = rawMovie.digital_release_date || rawMovie.release_date;
+
+  return {
+    id: rawMovie.id,
+    title: rawMovie.title,
+    poster: poster,
+    releaseDate: releaseDate,
+    rating: rawMovie.vote_average, // 0-10 scale
+    ratingMax: 10,
+    genres: genres,
+    description: rawMovie.overview || 'No overview available.',
+    metadata: {
+      imdbId: rawMovie.imdb_id,
+      runtime: rawMovie.runtime,
+      type: 'movie'
     }
-  } else {
-    releaseText = movie.digital_release_date
-      ? `Digital release date: ${new Date(movie.digital_release_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
-      : 'Digital release date coming soon';
+  };
+}
+
+function normalizeTVShow(rawShow) {
+  // Similar to movie but with TV specific fields
+  let genres = [];
+  if (rawShow.genre_ids && rawShow.genre_ids.length > 0) {
+    genres = rawShow.genre_ids.map(id => genreMap[id]).filter(Boolean);
   }
 
-  // Handle rating
-  let ratingText;
-  if (isGame) {
-    ratingText = movie.total_rating_count > 0
-      ? `Rating: ${parseFloat(movie.total_rating).toFixed(1)}/100`
-      : 'Rating: N/A';
-  } else {
-    ratingText = movie.vote_count > 0
-      ? `Rating: ${movie.vote_average}/10`
-      : 'Rating: N/A';
+  const poster = (!rawShow.poster_path || rawShow.poster_path === 'placeholder_poster.jpg')
+    ? 'shared-data/placeholder_poster.jpg'
+    : TMDB_IMAGE_BASE + rawShow.poster_path;
+
+  return {
+    id: rawShow.id,
+    title: rawShow.name, // TV shows use 'name'
+    poster: poster,
+    releaseDate: rawShow.digital_release_date || rawShow.first_air_date,
+    rating: rawShow.vote_average,
+    ratingMax: 10,
+    genres: genres,
+    description: rawShow.overview || 'No overview available.',
+    metadata: {
+      imdbId: rawShow.imdb_id,
+      seasons: rawShow.number_of_seasons,
+      episodes: rawShow.number_of_episodes,
+      networks: rawShow.networks,
+      status: rawShow.release_status,
+      type: 'tv-show'
+    }
+  };
+}
+
+function normalizeGame(rawGame) {
+  // Games have genres as array of strings already
+  const genres = rawGame.genres || [];
+
+  // Games use direct URLs or relative paths
+  const poster = rawGame.poster_path || 'shared-data/placeholder_poster.jpg';
+
+  // Handle date (Unix timestamp)
+  let releaseDate = null;
+  if (rawGame.first_release_date) {
+    // Convert timestamp to ISO string for consistency
+    const date = new Date(parseInt(rawGame.first_release_date) * 1000);
+    releaseDate = date.toISOString();
   }
 
-  // Handle genres
-  let genres;
-  if (isGame) {
-    genres = movie.genres && movie.genres.length > 0
-      ? movie.genres.join(', ')
-      : 'Genres: N/A';
-  } else {
-    genres = movie.genre_ids && movie.genre_ids.length > 0
-      ? movie.genre_ids.map(id => genreMap[id]).filter(Boolean).join(', ')
-      : 'Genres: N/A';
+  return {
+    id: rawGame.id,
+    title: rawGame.name,
+    poster: poster,
+    releaseDate: releaseDate,
+    rating: rawGame.total_rating, // 0-100 scale
+    ratingMax: 100,
+    genres: genres,
+    description: rawGame.summary || 'No summary available.',
+    metadata: {
+      steamUrl: rawGame.steam_url,
+      platforms: rawGame.platforms,
+      developers: rawGame.developers,
+      publishers: rawGame.publishers,
+      gameModes: rawGame.game_modes,
+      type: 'game'
+    }
+  };
+}
+
+// Category Configuration
+const CATEGORY_CONFIG = {
+  movies: {
+    dataFile: 'shared-data/data.json',
+    adapter: normalizeMovie,
+    displayName: 'Movies'
+  },
+  'tv-shows': {
+    dataFile: 'shared-data/data_tv_shows.json',
+    adapter: normalizeTVShow,
+    displayName: 'TV Shows'
+  },
+  games: {
+    dataFile: 'shared-data/data_games.json',
+    adapter: normalizeGame,
+    displayName: 'Games'
+  },
+  books: {
+    dataFile: 'shared-data/data_books.json', // Placeholder
+    adapter: (data) => data, // Placeholder
+    displayName: 'Books'
+  },
+  music: {
+    dataFile: 'shared-data/data_music.json', // Placeholder
+    adapter: (data) => data, // Placeholder
+    displayName: 'Music'
+  }
+};
+
+// In-memory cache
+const dataCache = {
+  data: {},
+  timestamps: {},
+
+  get(key) {
+    return this.data[key] || null;
+  },
+
+  set(key, value) {
+    this.data[key] = value;
+    this.timestamps[key] = Date.now();
+  },
+
+  has(key) {
+    return key in this.data;
+  },
+
+  clear(key) {
+    if (key) {
+      delete this.data[key];
+      delete this.timestamps[key];
+    } else {
+      this.data = {};
+      this.timestamps = {};
+    }
+  }
+};
+
+function loadContent(category) {
+  const config = CATEGORY_CONFIG[category];
+  const container = document.getElementById('movies-container');
+
+  if (!config) {
+    console.error(`Unknown category: ${category}`);
+    return;
   }
 
-  let runtimeText = 'Runtime: N/A';
-  if (movie.runtime) {
-    const hours = Math.floor(movie.runtime / 60);
-    const minutes = movie.runtime % 60;
-    runtimeText = `Runtime: ${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
+  // CHECK CACHE FIRST
+  if (dataCache.has(category)) {
+    // Fade out current content
+    container.style.transition = 'opacity 0.2s ease';
+    container.style.opacity = '0';
+
+    setTimeout(() => {
+      const cachedData = dataCache.get(category);
+      displayItems(cachedData);
+      // Fade in instantly
+      container.style.opacity = '1';
+    }, 200);
+    return;
   }
 
-  // Security: Using textContent prevents XSS, sanitizeURL validates the image source
-  document.getElementById('modal-poster').src = posterUrl;
-  document.getElementById('modal-title').textContent = isGame ? (movie.name || 'Untitled') : (movie.title || 'Untitled');
-  document.getElementById('modal-year').textContent = releaseText;
+  // Fade out current content
+  container.style.transition = 'opacity 0.3s ease';
+  container.style.opacity = '0';
+
+  // Wait for fade out
+  setTimeout(() => {
+    fetch(config.dataFile)
+      .then(response => {
+        if (!response.ok) {
+          // If file doesn't exist (e.g. books/music), show coming soon
+          throw new Error('Content not found');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Normalize Data
+        const normalizedData = data.map(config.adapter);
+
+        // STORE IN CACHE
+        dataCache.set(category, normalizedData);
+
+        displayItems(normalizedData);
+
+        // Fade in
+        setTimeout(() => {
+          container.style.opacity = '1';
+        }, 50);
+      })
+      .catch(error => {
+        console.log('Load error:', error);
+        container.innerHTML = '<p class="error" style="text-align: center; padding: 2rem; color: var(--color-text-primary);">Coming Soon...</p>';
+        container.style.opacity = '1';
+      });
+  }, 300);
+}
+
+function displayItems(items) {
+  const container = document.getElementById('movies-container');
+  container.innerHTML = '';
+
+  // Store globally for modal navigation
+  currentMoviesArray = items;
+
+  items.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+
+    // Accessibility
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `View details for ${item.title}`);
+
+    // Date Formatting
+    let displayDate = 'TBA';
+    let isReleasedToday = false;
+    let isAlreadyOut = false;
+
+    if (item.releaseDate) {
+      const dateObj = new Date(item.releaseDate);
+      displayDate = dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+
+      // Check status
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkDate = new Date(dateObj);
+      checkDate.setHours(0, 0, 0, 0);
+
+      isReleasedToday = checkDate.getTime() === today.getTime();
+      isAlreadyOut = checkDate < today;
+    }
+
+    // Status Badge
+    let releaseBadge = '';
+    if (isReleasedToday) {
+      card.classList.add('released-today');
+      releaseBadge = '<div class="movie-status-badge status-new">Released Today</div>';
+    } else if (isAlreadyOut) {
+      releaseBadge = '<div class="movie-status-badge status-out">Available</div>';
+    }
+
+    // Genre Tag (Primary Genre)
+    const primaryGenre = item.genres.length > 0 ? item.genres[0] : '';
+    const genreTag = primaryGenre
+      ? `<div class="movie-genre-tag">${sanitizeHTML(primaryGenre)}</div>`
+      : '';
+
+    // Rating
+    // Normalize to 0-10 for score icon if max is 100
+    let normalizedRating = item.rating;
+    if (item.ratingMax === 100) {
+      normalizedRating = item.rating / 10;
+    }
+
+    card.innerHTML = `
+      <div class="movie-poster">
+        <img src="${sanitizeURL(item.poster)}" alt="${sanitizeHTML(item.title)}" loading="lazy">
+        ${releaseBadge}
+        ${genreTag}
+        <div class="movie-overlay">
+          ${getScoreIconHtml(normalizedRating)}
+          <button class="view-details">VIEW DETAILS</button>
+        </div>
+      </div>
+      <div class="movie-info">
+        <div class="movie-text-content">
+          <h3 class="movie-title">${sanitizeHTML(item.title)}</h3>
+        </div>
+      </div>
+      <div class="movie-date-floating">
+        ${sanitizeHTML(displayDate)}
+      </div>
+    `;
+
+    // Click Handler
+    card.addEventListener('click', () => {
+      showItemDetails(item, index);
+    });
+
+    // Keyboard Handler
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showItemDetails(item, index);
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function showItemDetails(item, index = 0) {
+  // Capture focus
+  if (document.activeElement && document.activeElement !== document.body) {
+    lastFocusedElement = document.activeElement;
+  }
+
+  const modal = document.getElementById('movie-modal');
+  const meta = item.metadata;
+
+  // Populate Basic Info
+  document.getElementById('modal-poster').src = sanitizeURL(item.poster);
+  document.getElementById('modal-title').textContent = item.title;
+  document.getElementById('modal-overview').textContent = item.description;
+
+  // Genres
+  document.getElementById('modal-genres').textContent = item.genres.length > 0
+    ? item.genres.join(', ')
+    : 'Genres: N/A';
+
+  // Date
+  let dateText = 'Release date coming soon';
+  if (item.releaseDate) {
+    const dateObj = new Date(item.releaseDate);
+    dateText = `Release date: ${dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+  }
+  document.getElementById('modal-year').textContent = dateText;
+
+  // Rating
+  let ratingText = 'Rating: N/A';
+  if (item.rating) {
+    if (item.ratingMax === 100) {
+      ratingText = `Rating: ${parseFloat(item.rating).toFixed(1)}/100`;
+    } else {
+      ratingText = `${item.rating}/10`;
+    }
+  }
   document.getElementById('modal-rating').textContent = ratingText;
-  document.getElementById('modal-genres').textContent = genres;
-  document.getElementById('modal-runtime').textContent = runtimeText;
-  document.getElementById('modal-overview').textContent = isGame ? (movie.summary || 'No summary available.') : (movie.overview || 'No overview available.');
 
-  // IMDb Button Logic
-  const imdbButton = document.getElementById('modal-imdb-link');
-  // TV Show Specific Fields
-  const seasonsElem = document.getElementById('modal-seasons');
-  const episodesElem = document.getElementById('modal-episodes');
-  const typeElem = document.getElementById('modal-type');
-  const networksElem = document.getElementById('modal-networks');
-  const seriesDetailsSection = document.getElementById('modal-series-details-section');
-  const seriesDetailsHeading = document.getElementById('modal-series-details-heading');
-  const seriesInfo1 = document.getElementById('modal-series-info-1');
-  const seriesInfo2 = document.getElementById('modal-series-info-2');
-  const seriesNetworksElem = document.getElementById('modal-series-networks');
-
-  if (isGame) {
-    // Game - Show platforms instead of TV show info
-    seasonsElem.style.display = 'none';
-    episodesElem.style.display = 'none';
-    typeElem.style.display = 'none';
-    networksElem.style.display = 'none';
-
-    // Change heading to "Game Details"
-    seriesDetailsHeading.textContent = 'Game Details';
-
-    // Use series details section for game platforms
-    if (movie.platforms && movie.platforms.length > 0) {
-      seriesInfo1.textContent = `Platforms: ${movie.platforms.join(', ')}`;
-      seriesInfo2.textContent = movie.game_modes && movie.game_modes.length > 0
-        ? `Game Modes: ${movie.game_modes.join(', ')}`
-        : '';
-
-      // Build developer and publisher info
-      let devPubInfo = '';
-      if (movie.developers && movie.developers.length > 0) {
-        devPubInfo = `Developer: ${movie.developers.join(', ')}`;
-      }
-      if (movie.publishers && movie.publishers.length > 0) {
-        if (devPubInfo) devPubInfo += ' • ';
-        devPubInfo += `Publisher: ${movie.publishers.join(', ')}`;
-      }
-      seriesNetworksElem.textContent = devPubInfo;
-
-      seriesDetailsSection.style.display = 'block';
-    } else {
-      seriesDetailsSection.style.display = 'none';
-    }
-
-    // Hide runtime for games
-    document.getElementById('modal-runtime').style.display = 'none';
-
-    // Steam button for games
-    if (movie.steam_url) {
-      imdbButton.href = sanitizeURL(movie.steam_url);
-      imdbButton.classList.remove('disabled', 'imdb-button');
-      imdbButton.classList.add('steam-button');
-      imdbButton.textContent = 'STEAM';
-    } else {
-      imdbButton.removeAttribute('href');
-      imdbButton.classList.remove('imdb-button');
-      imdbButton.classList.add('steam-button', 'disabled');
-      imdbButton.textContent = 'STEAM';
-    }
-
-  } else if (movie.number_of_seasons) {
-    // TV Show
-    // Reset heading to "Series Details"
-    seriesDetailsHeading.textContent = 'Series Details';
-
-    // Hide list items for seasons/episodes as they are now in the details section
-    seasonsElem.style.display = 'none';
-    episodesElem.style.display = 'none';
-
-    typeElem.textContent = `Status: ${movie.release_status || 'N/A'}`;
-    typeElem.style.display = 'inline-block';
-
-    const networks = movie.networks ? movie.networks.join(', ') : 'N/A';
-    networksElem.style.display = 'none';
-    seriesNetworksElem.textContent = `Network: ${networks}`;
-
-    // Series Details Section
-    const seasonsCount = movie.number_of_seasons || 0;
-    const episodesCount = movie.number_of_episodes || 0;
-    const firstAirDate = movie.digital_release_date
-      ? new Date(movie.digital_release_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-      : 'TBA';
-
-    seriesInfo1.textContent = `${seasonsCount} Season${seasonsCount !== 1 ? 's' : ''} • ${episodesCount} Episode${episodesCount !== 1 ? 's' : ''}`;
-    seriesInfo2.textContent = `First Episode Airs: ${firstAirDate}`;
-    seriesDetailsSection.style.display = 'block';
-
-    // Hide runtime if N/A for TV shows
-    if (runtimeText === 'Runtime: N/A') {
-      document.getElementById('modal-runtime').style.display = 'none';
-    } else {
-      document.getElementById('modal-runtime').style.display = 'inline-block';
-    }
-
-    // IMDb button for TV shows
-    if (movie.imdb_id) {
-      imdbButton.href = `https://www.imdb.com/title/${movie.imdb_id}/`;
-      imdbButton.classList.remove('disabled', 'steam-button');
-      imdbButton.classList.add('imdb-button');
-      imdbButton.textContent = 'IMDb';
-    } else {
-      imdbButton.removeAttribute('href');
-      imdbButton.classList.remove('steam-button');
-      imdbButton.classList.add('imdb-button', 'disabled');
-      imdbButton.textContent = 'IMDb';
-    }
-
+  // Runtime
+  const runtimeElem = document.getElementById('modal-runtime');
+  if (meta.runtime) {
+    const hours = Math.floor(meta.runtime / 60);
+    const minutes = meta.runtime % 60;
+    runtimeElem.textContent = `Runtime: ${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
+    runtimeElem.style.display = 'inline-block';
   } else {
-    // Movie - Hide TV fields
-    seasonsElem.style.display = 'none';
-    episodesElem.style.display = 'none';
-    typeElem.style.display = 'none';
-    networksElem.style.display = 'none';
-    seriesDetailsSection.style.display = 'none';
+    runtimeElem.style.display = 'none';
+  }
 
-    document.getElementById('modal-runtime').style.display = 'inline-block';
+  // Buttons (IMDb / Steam)
+  const actionButton = document.getElementById('modal-imdb-link');
 
-    // IMDb button for movies
-    if (movie.imdb_id) {
-      imdbButton.href = `https://www.imdb.com/title/${movie.imdb_id}/`;
-      imdbButton.classList.remove('disabled', 'steam-button');
-      imdbButton.classList.add('imdb-button');
-      imdbButton.textContent = 'IMDb';
+  // Reset classes
+  actionButton.className = '';
+
+  if (meta.type === 'game') {
+    actionButton.textContent = 'STEAM';
+    actionButton.classList.add('steam-button');
+    if (meta.steamUrl) {
+      actionButton.href = sanitizeURL(meta.steamUrl);
     } else {
-      imdbButton.removeAttribute('href');
-      imdbButton.classList.remove('steam-button');
-      imdbButton.classList.add('imdb-button', 'disabled');
-      imdbButton.textContent = 'IMDb';
+      actionButton.removeAttribute('href');
+      actionButton.classList.add('disabled');
+    }
+  } else {
+    // Movies / TV
+    actionButton.textContent = 'IMDb';
+    actionButton.classList.add('imdb-button');
+    if (meta.imdbId) {
+      actionButton.href = `https://www.imdb.com/title/${meta.imdbId}/`;
+    } else {
+      actionButton.removeAttribute('href');
+      actionButton.classList.add('disabled');
     }
   }
 
-  // Store current movie index
-  modal.dataset.currentIndex = movieIndex;
+  // Extra Details Section (TV Seasons / Game Platforms)
+  const detailsSection = document.getElementById('modal-series-details-section');
+  const detailsHeading = document.getElementById('modal-series-details-heading');
+  const info1 = document.getElementById('modal-series-info-1');
+  const info2 = document.getElementById('modal-series-info-2');
+  const info3 = document.getElementById('modal-series-networks');
 
+  // Hide specific list items that are now in details section
+  document.getElementById('modal-seasons').style.display = 'none';
+  document.getElementById('modal-episodes').style.display = 'none';
+  document.getElementById('modal-type').style.display = 'none';
+  document.getElementById('modal-networks').style.display = 'none';
+
+  if (meta.type === 'tv-show') {
+    detailsHeading.textContent = 'Series Details';
+    info1.textContent = `${meta.seasons || 0} Seasons • ${meta.episodes || 0} Episodes`;
+    info2.textContent = `Status: ${meta.status || 'Unknown'}`;
+    info3.textContent = `Network: ${meta.networks ? meta.networks.join(', ') : 'N/A'}`;
+    detailsSection.style.display = 'block';
+  } else if (meta.type === 'game') {
+    detailsHeading.textContent = 'Game Details';
+
+    const platforms = meta.platforms ? meta.platforms.join(', ') : '';
+    info1.textContent = platforms ? `Platforms: ${platforms}` : '';
+
+    const modes = meta.gameModes ? meta.gameModes.join(', ') : '';
+    info2.textContent = modes ? `Modes: ${modes}` : '';
+
+    let devPub = [];
+    if (meta.developers) devPub.push(`Dev: ${meta.developers.join(', ')}`);
+    if (meta.publishers) devPub.push(`Pub: ${meta.publishers.join(', ')}`);
+    info3.textContent = devPub.join(' • ');
+
+    detailsSection.style.display = 'block';
+  } else {
+    // Movie
+    detailsSection.style.display = 'none';
+  }
+
+  // Store index
+  modal.dataset.currentIndex = index;
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+
+  // Move focus to close button
+  const closeBtn = modal.querySelector('.close-modal');
+  if (closeBtn) {
+    // Small timeout to ensure visibility
+    setTimeout(() => closeBtn.focus(), 50);
+  }
 }
 
 // Global variable to store movies array
 let currentMoviesArray = [];
+
+// Focus Management
+let lastFocusedElement = null;
 
 function setupModal() {
   const modal = document.getElementById('movie-modal');
@@ -612,15 +682,22 @@ function setupModal() {
   const prevBtn = document.getElementById('modal-prev');
   const nextBtn = document.getElementById('modal-next');
 
-  closeBtn.addEventListener('click', () => {
+  function closeModal() {
     modal.style.display = 'none';
     document.body.style.overflow = 'auto';
-  });
+
+    // Return focus
+    if (lastFocusedElement) {
+      lastFocusedElement.focus();
+      lastFocusedElement = null;
+    }
+  }
+
+  closeBtn.addEventListener('click', closeModal);
 
   window.addEventListener('click', (e) => {
     if (e.target === modal) {
-      modal.style.display = 'none';
-      document.body.style.overflow = 'auto';
+      closeModal();
     }
   });
 
@@ -628,26 +705,44 @@ function setupModal() {
   prevBtn.addEventListener('click', () => {
     const currentIndex = parseInt(modal.dataset.currentIndex || 0);
     const newIndex = currentIndex > 0 ? currentIndex - 1 : currentMoviesArray.length - 1;
-    showMovieDetails(currentMoviesArray[newIndex], newIndex);
+    showItemDetails(currentMoviesArray[newIndex], newIndex);
   });
 
   // Next button
   nextBtn.addEventListener('click', () => {
     const currentIndex = parseInt(modal.dataset.currentIndex || 0);
     const newIndex = currentIndex < currentMoviesArray.length - 1 ? currentIndex + 1 : 0;
-    showMovieDetails(currentMoviesArray[newIndex], newIndex);
+    showItemDetails(currentMoviesArray[newIndex], newIndex);
   });
 
-  // Keyboard navigation
+  // Keyboard navigation & Focus Trap
   document.addEventListener('keydown', (e) => {
     if (modal.style.display === 'flex') {
       if (e.key === 'Escape') {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+        closeModal();
       } else if (e.key === 'ArrowLeft') {
         prevBtn.click();
       } else if (e.key === 'ArrowRight') {
         nextBtn.click();
+      } else if (e.key === 'Tab') {
+        // Focus Trap
+        const focusableElements = modal.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     }
   });
