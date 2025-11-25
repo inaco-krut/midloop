@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://image.tmdb.org data:; connect-src 'self';">
+    content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://image.tmdb.org https://images.igdb.com data:; connect-src 'self';">
   <title>LUDEN data</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -34,10 +34,10 @@
           <a href="#" class="nav-link" data-category="tv-shows">TV Shows</a>
         </li>
         <li class="nav-item">
-          <a href="#" class="nav-link" data-category="books">Books</a>
+          <a href="#" class="nav-link" data-category="games">Games</a>
         </li>
         <li class="nav-item">
-          <a href="#" class="nav-link" data-category="games">Games</a>
+          <a href="#" class="nav-link" data-category="books">Books</a>
         </li>
         <li class="nav-item">
           <a href="#" class="nav-link" data-category="music">Music</a>
@@ -72,7 +72,7 @@
             <li id="modal-networks"></li>
           </ul>
           <div id="modal-series-details-section" class="last-episode-section" style="display: none;">
-            <h4>Series Details</h4>
+            <h4 id="modal-series-details-heading">Series Details</h4>
             <div class="episode-details">
               <span id="modal-series-info-1" class="episode-name"></span>
               <span id="modal-series-info-2" class="episode-info"></span>

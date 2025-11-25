@@ -883,6 +883,39 @@ h2 {
     transform: none;
 }
 
+/* Steam Button Styles */
+.steam-button {
+    display: inline-block;
+    background-color: #2b2b2b;
+    color: #ffffff;
+    font-family: "Anton", sans-serif;
+    font-weight: 500;
+    font-size: 1.4rem;
+    padding: 2px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.steam-button:hover {
+    background-color: #5a5a5a;
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(74, 74, 74, 0.4);
+}
+
+.steam-button.disabled {
+    background-color: #333333;
+    color: #555555;
+    pointer-events: none;
+    filter: grayscale(100%);
+    box-shadow: none;
+    cursor: default;
+    transform: none;
+}
+
+
 /* Minimalistic Genre Tag on Movie Card */
 .movie-genre-tag {
     position: absolute;

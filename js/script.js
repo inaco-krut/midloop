@@ -176,6 +176,8 @@ function loadContent(category) {
     dataFile = 'shared-data/data.json';
   } else if (category === 'tv-shows') {
     dataFile = 'shared-data/data_tv_shows.json';
+  } else if (category === 'games') {
+    dataFile = 'shared-data/data_games.json';
   } else {
     const container = document.getElementById('movies-container');
     // Fade out, change content, fade in
@@ -229,19 +231,45 @@ function displayMovies(movies) {
     const card = document.createElement('div');
     card.className = 'movie-card';
 
+    // Detect if this is a game (has 'name' instead of 'title')
+    const isGame = movie.name && !movie.title;
+
     // Security: Sanitize poster URL
-    const rawPosterUrl = (!movie.poster_path || movie.poster_path === 'placeholder_poster.jpg')
-      ? 'shared-data/placeholder_poster.jpg'
-      : TMDB_IMAGE_BASE + movie.poster_path;
+    // Games use direct URLs, movies/TV use TMDB base
+    let rawPosterUrl;
+    if (isGame) {
+      rawPosterUrl = movie.poster_path || 'shared-data/placeholder_poster.jpg';
+    } else {
+      rawPosterUrl = (!movie.poster_path || movie.poster_path === 'placeholder_poster.jpg')
+        ? 'shared-data/placeholder_poster.jpg'
+        : TMDB_IMAGE_BASE + movie.poster_path;
+    }
     const posterUrl = sanitizeURL(rawPosterUrl);
 
-    const releaseDate = movie.digital_release_date
-      ? new Date(movie.digital_release_date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      })
-      : 'Release Date: TBA';
+    // Handle different date formats
+    let releaseDate;
+    if (isGame) {
+      // Games use first_release_date (Unix timestamp)
+      if (movie.first_release_date) {
+        const timestamp = parseInt(movie.first_release_date) * 1000;
+        releaseDate = new Date(timestamp).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } else {
+        releaseDate = 'Release Date: TBA';
+      }
+    } else {
+      // Movies/TV use digital_release_date
+      releaseDate = movie.digital_release_date
+        ? new Date(movie.digital_release_date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        })
+        : 'Release Date: TBA';
+    }
 
     // Check if released today or already out
     const today = new Date();
@@ -249,7 +277,18 @@ function displayMovies(movies) {
     let isReleasedToday = false;
     let isAlreadyOut = false;
 
-    if (movie.digital_release_date) {
+    if (isGame && movie.first_release_date) {
+      const timestamp = parseInt(movie.first_release_date) * 1000;
+      const gameDate = new Date(timestamp);
+      gameDate.setHours(0, 0, 0, 0);
+
+      isReleasedToday =
+        today.getFullYear() === gameDate.getFullYear() &&
+        today.getMonth() === gameDate.getMonth() &&
+        today.getDate() === gameDate.getDate();
+
+      isAlreadyOut = gameDate < today;
+    } else if (!isGame && movie.digital_release_date) {
       const parts = movie.digital_release_date.split('-');
       if (parts.length === 3) {
         const movieYear = parseInt(parts[0]);
@@ -279,16 +318,28 @@ function displayMovies(movies) {
         : '';
 
     // Security: Sanitize all user-controlled data before inserting into HTML
-    const sanitizedTitle = sanitizeHTML(movie.title || 'Untitled');
+    const itemTitle = isGame ? movie.name : movie.title;
+    const sanitizedTitle = sanitizeHTML(itemTitle || 'Untitled');
     const sanitizedReleaseDate = sanitizeHTML(releaseDate);
 
-    const primaryGenre = movie.genre_ids && movie.genre_ids.length > 0 && genreMap[movie.genre_ids[0]]
-      ? genreMap[movie.genre_ids[0]]
-      : '';
+    // Handle genres differently for games
+    let primaryGenre = '';
+    if (isGame) {
+      // Games have genres as an array of strings
+      primaryGenre = movie.genres && movie.genres.length > 0 ? movie.genres[0] : '';
+    } else {
+      // Movies/TV have genre_ids
+      primaryGenre = movie.genre_ids && movie.genre_ids.length > 0 && genreMap[movie.genre_ids[0]]
+        ? genreMap[movie.genre_ids[0]]
+        : '';
+    }
 
     const genreTag = primaryGenre
-      ? `<div class="movie-genre-tag">${primaryGenre}</div>`
+      ? `<div class="movie-genre-tag">${sanitizeHTML(primaryGenre)}</div>`
       : '';
+
+    // Handle rating differently for games
+    const rating = isGame ? movie.total_rating : movie.vote_average;
 
     card.innerHTML = `
       <div class="movie-poster">
@@ -296,7 +347,7 @@ function displayMovies(movies) {
         ${releaseBadge}
         ${genreTag}
         <div class="movie-overlay">
-          ${getScoreIconHtml(movie.vote_average)}
+          ${getScoreIconHtml(rating)}
           <button class="view-details">VIEW DETAILS</button>
         </div>
       </div>
@@ -343,23 +394,58 @@ const genreMap = {
 function showMovieDetails(movie, movieIndex = 0) {
   const modal = document.getElementById('movie-modal');
 
+  // Detect if this is a game
+  const isGame = movie.name && !movie.title;
+
   // Security: Sanitize poster URL
-  const rawPosterUrl = (!movie.poster_path || movie.poster_path === 'placeholder_poster.jpg')
-    ? 'shared-data/placeholder_poster.jpg'
-    : TMDB_IMAGE_BASE + movie.poster_path;
+  let rawPosterUrl;
+  if (isGame) {
+    rawPosterUrl = movie.poster_path || 'shared-data/placeholder_poster.jpg';
+  } else {
+    rawPosterUrl = (!movie.poster_path || movie.poster_path === 'placeholder_poster.jpg')
+      ? 'shared-data/placeholder_poster.jpg'
+      : TMDB_IMAGE_BASE + movie.poster_path;
+  }
   const posterUrl = sanitizeURL(rawPosterUrl);
 
-  const releaseText = movie.digital_release_date
-    ? `Digital release date: ${new Date(movie.digital_release_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
-    : 'Digital release date coming soon';
+  // Handle release date
+  let releaseText;
+  if (isGame) {
+    if (movie.first_release_date) {
+      const timestamp = parseInt(movie.first_release_date) * 1000;
+      releaseText = `Release date: ${new Date(timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+    } else {
+      releaseText = 'Release date coming soon';
+    }
+  } else {
+    releaseText = movie.digital_release_date
+      ? `Digital release date: ${new Date(movie.digital_release_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
+      : 'Digital release date coming soon';
+  }
 
-  const ratingText = movie.vote_count > 0
-    ? `Rating: ${movie.vote_average}/10`
-    : 'Rating: N/A';
+  // Handle rating
+  let ratingText;
+  if (isGame) {
+    ratingText = movie.total_rating_count > 0
+      ? `Rating: ${parseFloat(movie.total_rating).toFixed(1)}/100`
+      : 'Rating: N/A';
+  } else {
+    ratingText = movie.vote_count > 0
+      ? `Rating: ${movie.vote_average}/10`
+      : 'Rating: N/A';
+  }
 
-  const genres = movie.genre_ids && movie.genre_ids.length > 0
-    ? movie.genre_ids.map(id => genreMap[id]).filter(Boolean).join(', ')
-    : 'Genres: N/A';
+  // Handle genres
+  let genres;
+  if (isGame) {
+    genres = movie.genres && movie.genres.length > 0
+      ? movie.genres.join(', ')
+      : 'Genres: N/A';
+  } else {
+    genres = movie.genre_ids && movie.genre_ids.length > 0
+      ? movie.genre_ids.map(id => genreMap[id]).filter(Boolean).join(', ')
+      : 'Genres: N/A';
+  }
 
   let runtimeText = 'Runtime: N/A';
   if (movie.runtime) {
@@ -370,12 +456,12 @@ function showMovieDetails(movie, movieIndex = 0) {
 
   // Security: Using textContent prevents XSS, sanitizeURL validates the image source
   document.getElementById('modal-poster').src = posterUrl;
-  document.getElementById('modal-title').textContent = movie.title || 'Untitled';
+  document.getElementById('modal-title').textContent = isGame ? (movie.name || 'Untitled') : (movie.title || 'Untitled');
   document.getElementById('modal-year').textContent = releaseText;
   document.getElementById('modal-rating').textContent = ratingText;
   document.getElementById('modal-genres').textContent = genres;
   document.getElementById('modal-runtime').textContent = runtimeText;
-  document.getElementById('modal-overview').textContent = movie.overview || 'No overview available.';
+  document.getElementById('modal-overview').textContent = isGame ? (movie.summary || 'No summary available.') : (movie.overview || 'No overview available.');
 
   // IMDb Button Logic
   const imdbButton = document.getElementById('modal-imdb-link');
@@ -385,12 +471,65 @@ function showMovieDetails(movie, movieIndex = 0) {
   const typeElem = document.getElementById('modal-type');
   const networksElem = document.getElementById('modal-networks');
   const seriesDetailsSection = document.getElementById('modal-series-details-section');
+  const seriesDetailsHeading = document.getElementById('modal-series-details-heading');
   const seriesInfo1 = document.getElementById('modal-series-info-1');
   const seriesInfo2 = document.getElementById('modal-series-info-2');
   const seriesNetworksElem = document.getElementById('modal-series-networks');
 
-  if (movie.number_of_seasons) {
+  if (isGame) {
+    // Game - Show platforms instead of TV show info
+    seasonsElem.style.display = 'none';
+    episodesElem.style.display = 'none';
+    typeElem.style.display = 'none';
+    networksElem.style.display = 'none';
+
+    // Change heading to "Game Details"
+    seriesDetailsHeading.textContent = 'Game Details';
+
+    // Use series details section for game platforms
+    if (movie.platforms && movie.platforms.length > 0) {
+      seriesInfo1.textContent = `Platforms: ${movie.platforms.join(', ')}`;
+      seriesInfo2.textContent = movie.game_modes && movie.game_modes.length > 0
+        ? `Game Modes: ${movie.game_modes.join(', ')}`
+        : '';
+
+      // Build developer and publisher info
+      let devPubInfo = '';
+      if (movie.developers && movie.developers.length > 0) {
+        devPubInfo = `Developer: ${movie.developers.join(', ')}`;
+      }
+      if (movie.publishers && movie.publishers.length > 0) {
+        if (devPubInfo) devPubInfo += ' • ';
+        devPubInfo += `Publisher: ${movie.publishers.join(', ')}`;
+      }
+      seriesNetworksElem.textContent = devPubInfo;
+
+      seriesDetailsSection.style.display = 'block';
+    } else {
+      seriesDetailsSection.style.display = 'none';
+    }
+
+    // Hide runtime for games
+    document.getElementById('modal-runtime').style.display = 'none';
+
+    // Steam button for games
+    if (movie.steam_url) {
+      imdbButton.href = sanitizeURL(movie.steam_url);
+      imdbButton.classList.remove('disabled', 'imdb-button');
+      imdbButton.classList.add('steam-button');
+      imdbButton.textContent = 'STEAM';
+    } else {
+      imdbButton.removeAttribute('href');
+      imdbButton.classList.remove('imdb-button');
+      imdbButton.classList.add('steam-button', 'disabled');
+      imdbButton.textContent = 'STEAM';
+    }
+
+  } else if (movie.number_of_seasons) {
     // TV Show
+    // Reset heading to "Series Details"
+    seriesDetailsHeading.textContent = 'Series Details';
+
     // Hide list items for seasons/episodes as they are now in the details section
     seasonsElem.style.display = 'none';
     episodesElem.style.display = 'none';
@@ -420,6 +559,19 @@ function showMovieDetails(movie, movieIndex = 0) {
       document.getElementById('modal-runtime').style.display = 'inline-block';
     }
 
+    // IMDb button for TV shows
+    if (movie.imdb_id) {
+      imdbButton.href = `https://www.imdb.com/title/${movie.imdb_id}/`;
+      imdbButton.classList.remove('disabled', 'steam-button');
+      imdbButton.classList.add('imdb-button');
+      imdbButton.textContent = 'IMDb';
+    } else {
+      imdbButton.removeAttribute('href');
+      imdbButton.classList.remove('steam-button');
+      imdbButton.classList.add('imdb-button', 'disabled');
+      imdbButton.textContent = 'IMDb';
+    }
+
   } else {
     // Movie - Hide TV fields
     seasonsElem.style.display = 'none';
@@ -429,15 +581,19 @@ function showMovieDetails(movie, movieIndex = 0) {
     seriesDetailsSection.style.display = 'none';
 
     document.getElementById('modal-runtime').style.display = 'inline-block';
-  }
-  if (movie.imdb_id) {
-    imdbButton.href = `https://www.imdb.com/title/${movie.imdb_id}/`;
-    imdbButton.classList.remove('disabled');
-    imdbButton.textContent = 'IMDb';
-  } else {
-    imdbButton.removeAttribute('href');
-    imdbButton.classList.add('disabled');
-    imdbButton.textContent = 'IMDb';
+
+    // IMDb button for movies
+    if (movie.imdb_id) {
+      imdbButton.href = `https://www.imdb.com/title/${movie.imdb_id}/`;
+      imdbButton.classList.remove('disabled', 'steam-button');
+      imdbButton.classList.add('imdb-button');
+      imdbButton.textContent = 'IMDb';
+    } else {
+      imdbButton.removeAttribute('href');
+      imdbButton.classList.remove('steam-button');
+      imdbButton.classList.add('imdb-button', 'disabled');
+      imdbButton.textContent = 'IMDb';
+    }
   }
 
   // Store current movie index
