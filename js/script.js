@@ -177,27 +177,45 @@ function loadContent(category) {
   } else if (category === 'tv-shows') {
     dataFile = 'shared-data/data_tv_shows.json';
   } else {
-    document.getElementById('movies-container').innerHTML = '<p class="error" style="text-align: center; padding: 2rem; color: var(--text-color);">Coming Soon...</p>';
+    const container = document.getElementById('movies-container');
+    // Fade out, change content, fade in
+    container.style.transition = 'opacity 0.3s ease';
+    container.style.opacity = '0';
+    setTimeout(() => {
+      container.innerHTML = '\u003cp class=\"error\" style=\"text-align: center; padding: 2rem; color: var(--text-color);\"\u003eComing Soon...\u003c/p\u003e';
+      container.style.opacity = '1';
+    }, 300);
     return;
   }
 
   const container = document.getElementById('movies-container');
-  // Optional: Add loading state if needed, for now we just fetch
 
-  fetch(dataFile)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      displayMovies(data);
-    })
-    .catch(error => {
-      console.error('Error loading data:', error);
-      container.innerHTML = '<p class="error">Error loading content. Please try again later.</p>';
-    });
+  // Fade out current content
+  container.style.transition = 'opacity 0.3s ease';
+  container.style.opacity = '0';
+
+  // Wait for fade out, then fetch and display new content
+  setTimeout(() => {
+    fetch(dataFile)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        displayMovies(data);
+        // Fade in new content
+        setTimeout(() => {
+          container.style.opacity = '1';
+        }, 50);
+      })
+      .catch(error => {
+        console.error('Error loading data:', error);
+        container.innerHTML = '\u003cp class=\"error\"\u003eError loading content. Please try again later.\u003c/p\u003e';
+        container.style.opacity = '1';
+      });
+  }, 300);
 }
 
 function displayMovies(movies) {
@@ -377,12 +395,12 @@ function showMovieDetails(movie, movieIndex = 0) {
     seasonsElem.style.display = 'none';
     episodesElem.style.display = 'none';
 
-    typeElem.textContent = `Type: ${movie.release_status || 'N/A'}`;
+    typeElem.textContent = `Status: ${movie.release_status || 'N/A'}`;
     typeElem.style.display = 'inline-block';
 
     const networks = movie.networks ? movie.networks.join(', ') : 'N/A';
     networksElem.style.display = 'none';
-    seriesNetworksElem.textContent = `Networks: ${networks}`;
+    seriesNetworksElem.textContent = `Network: ${networks}`;
 
     // Series Details Section
     const seasonsCount = movie.number_of_seasons || 0;
@@ -605,6 +623,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 2500);
     });
   }
+
+
 });
 
 init();

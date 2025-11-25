@@ -11,7 +11,7 @@ body {
     /* overflow properties removed to allow sticky positioning to work */
     font-family: "Google Sans Flex", sans-serif;
     color: #ffffff;
-    zoom: 0.95;
+    zoom: 0.90;
     /* Scale entire page to 95% (5% smaller) */
 }
 
@@ -145,10 +145,13 @@ h2 {
     padding: 10px 0 10px 0;
     background-color: transparent;
     margin-top: 0;
+    margin-bottom: 60px;
+    /* Increased gap between nav and cards */
     position: sticky;
-    top: 40px;
+    top: 35px;
     z-index: 100;
-    pointer-events: none;
+    display: flex;
+    justify-content: center;
 }
 
 .nav-list {
@@ -166,10 +169,6 @@ h2 {
     border-radius: 40px;
     padding: 20px 40px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    width: fit-content;
-    max-width: 90%;
-    pointer-events: auto;
 }
 
 .nav-link {
@@ -224,7 +223,8 @@ h2 {
 .movies-section {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 80px 40px 20px 40px;
+    padding: 40px 40px 20px 40px;
+    /* Reduced top padding to move nav higher */
     text-align: center;
     /* Ensure content is centered */
 }
@@ -240,7 +240,8 @@ h2 {
     /* Resetting letter spacing to be reasonable */
     color: #F3C623;
     text-transform: uppercase;
-    display: flex;
+    display: none;
+    /* Hidden but not deleted display: flex; before */
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -520,6 +521,8 @@ h2 {
         align-items: center;
         gap: 20px;
     }
+
+
 
     h1 {
         font-size: 15vw;
@@ -906,4 +909,43 @@ h2 {
 /* Hide genre tag on hover so it doesn't conflict with overlay content */
 .movie-card:hover .movie-genre-tag {
     opacity: 0;
+}
+
+/* New Text Animation Styles */
+.header__title {
+    /* Inherits font-size from .section-title */
+    line-height: 1;
+    flex-flow: row wrap !important;
+    /* Override column wrap if inherited or default */
+    gap: 0.3em;
+}
+
+.header__static-text {
+    display: inline-block;
+}
+
+.header__word-container {
+    display: inline-grid;
+    grid-template-areas: "stack";
+    overflow: hidden;
+    height: 1.1em;
+    /* Adjusted for line-height */
+    vertical-align: bottom;
+    position: relative;
+    margin-bottom: -0.1em;
+    /* Visual adjustment */
+}
+
+[data-ref="header-word"] {
+    grid-area: stack;
+    transform: translate3d(0, 100%, 0);
+    display: flex;
+    justify-content: flex-start;
+    /* Align left to match "UPCOMING" flow */
+    align-items: center;
+    text-transform: uppercase;
+    width: max-content;
+    min-width: 100%;
+    visibility: hidden;
+    /* Hide initially to prevent flash */
 }
