@@ -24,9 +24,9 @@
     --font-accent: "Quicksand", sans-serif;
 
     /* Spacing & Layout */
-    --border-radius-sm: 12px;
-    --border-radius-md: 25px;
-    --border-radius-lg: 40px;
+    --border-radius-sm: 0.75rem;
+    --border-radius-md: 1.56rem;
+    --border-radius-lg: 2.5rem;
 
     /* Animation */
     --transition-base: 0.3s ease;
@@ -84,8 +84,8 @@ body {
     /* overflow properties removed to allow sticky positioning to work */
     font-family: var(--font-main);
     color: var(--color-text-primary);
-    /* zoom: 0.90; removed for accessibility */
-    /* Scale entire page to 95% (5% smaller) */
+    font-size: 90%;
+    /* Global scale factor (approx 14.4px base) */
 }
 
 .debug {
@@ -108,9 +108,9 @@ body {
     justify-content: center;
     align-items: flex-start;
     width: 100%;
-    padding-top: 75px;
+    padding-top: 4.68rem;
     /* Reduced from 150px */
-    padding-bottom: 12px;
+    padding-bottom: 0.75rem;
     /* Reduced by 40% from 20px */
     position: relative;
     flex-direction: column;
@@ -160,16 +160,16 @@ h2 {
 }
 
 h1 {
-    font-size: 10vw;
-    letter-spacing: 0.5vw;
+    font-size: 8vw;
+    letter-spacing: 0.4vw;
     margin: 0;
     line-height: 3.1;
-    height: 10vw;
+    height: 8vw;
 }
 
 h2 {
-    font-size: 3vw;
-    letter-spacing: 6vw;
+    font-size: 2.4vw;
+    letter-spacing: 4.8vw;
     padding-left: 0;
     /* Removed padding that was pushing it off-center */
 }
@@ -177,18 +177,18 @@ h2 {
 .char-wrapper {
     position: relative;
     display: inline-block;
-    height: 20vw;
+    height: 16vw;
 }
 
 .char {
     display: inline-block;
     position: relative;
-    height: 10vw;
+    height: 8vw;
 }
 
 .char--clone {
     position: absolute;
-    top: 30vw;
+    top: 24vw;
     left: 0;
 }
 
@@ -197,7 +197,7 @@ h2 {
     content: attr(data-char);
     position: absolute;
     left: 0;
-    height: 10vw;
+    height: 8vw;
 }
 
 .char:before {
@@ -215,13 +215,13 @@ h2 {
 /* Navigation Menu */
 .top-nav {
     width: 100%;
-    padding: 10px 0 10px 0;
+    padding: 0.625rem 0 0.625rem 0;
     background-color: transparent;
     margin-top: 0;
-    margin-bottom: 60px;
+    margin-bottom: 3.75rem;
     /* Increased gap between nav and cards */
     position: sticky;
-    top: 35px;
+    top: 2.18rem;
     z-index: 100;
     display: flex;
     justify-content: center;
@@ -233,21 +233,21 @@ h2 {
     align-items: center;
     list-style: none;
     margin: 0 auto;
-    gap: 20px;
+    gap: 1.25rem;
 
     /* Pill shape styling */
     background-color: var(--color-nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-radius: 40px;
-    padding: 20px 40px;
+    border-radius: 2.5rem;
+    padding: 1.25rem 2.5rem;
     border: 1px solid var(--color-border-subtle);
 }
 
 .nav-link {
     font-family: var(--font-main);
     /* Reverted to Anton */
-    font-size: 28px;
+    font-size: 1.75rem;
     color: var(--color-text-primary);
     text-decoration: none;
     text-transform: uppercase;
@@ -294,9 +294,9 @@ h2 {
 
 /* Movies Section */
 .movies-section {
-    max-width: 1400px;
+    max-width: 87.5rem;
     margin: 0 auto;
-    padding: 40px 40px 20px 40px;
+    padding: 2.5rem 2.5rem 1.25rem 2.5rem;
     /* Reduced top padding to move nav higher */
     text-align: center;
     /* Ensure content is centered */
@@ -307,7 +307,7 @@ h2 {
     font-size: 4.5rem;
     /* Increased by ~30% more */
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 1.875rem;
     /* Reduced from 50px */
     letter-spacing: 3px;
     /* Resetting letter spacing to be reasonable */
@@ -318,23 +318,23 @@ h2 {
     justify-content: center;
     align-items: center;
     width: 100%;
-    gap: 15px;
+    gap: 0.93rem;
     padding: 0;
     /* Ensure no padding affects centering */
 }
 
 .movies-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 30px;
-    margin-bottom: 60px;
+    grid-template-columns: repeat(auto-fill, minmax(15.6rem, 1fr));
+    gap: 1.875rem;
+    margin-bottom: 3.75rem;
 }
 
 .movie-card {
     background-color: var(--color-bg-secondary);
     border: 2px solid rgba(0, 0, 0, 0);
     /* Slightly brighter than var(--color-bg-primary) */
-    border-radius: 25px;
+    border-radius: 1.56rem;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
@@ -344,8 +344,8 @@ h2 {
 }
 
 .movie-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-0.625rem);
+    box-shadow: 0 0 1.56rem rgba(0, 0, 0, 0.15);
 }
 
 .movie-poster {
@@ -394,19 +394,19 @@ h2 {
     background-color: var(--color-primary);
     color: #1c1c1c;
     border: none;
-    padding: 12px 30px;
+    padding: 0.75rem 1.875rem;
     font-family: var(--font-main);
     font-weight: 700;
-    font-size: 14px;
+    font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
-    border-radius: 40px;
+    border-radius: 2.5rem;
     transition: background-color 0.3s ease;
 }
 
 .movie-info {
-    padding: 15px 15px 5px 15px;
+    padding: 0.93rem 0.93rem 0.31rem 0.93rem;
     /* Reduced bottom padding */
     text-align: center;
     flex-grow: 1;
@@ -439,11 +439,11 @@ h2 {
     font-family: var(--font-accent);
     font-size: 1.2rem;
     font-weight: 700;
-    padding: 8px 25px;
-    margin: 8px auto 18px;
+    padding: 0.5rem 1.56rem;
+    margin: 0.5rem auto 1.125rem;
     width: fit-content;
-    border-radius: 100px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.662);
+    border-radius: 6.25rem;
+    box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.662);
     border: 2.5px solid rgba(0, 0, 0, 0);
 }
 
@@ -459,21 +459,21 @@ h2 {
     background-color: var(--color-modal-overlay);
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 1.25rem;
 }
 
 .modal-content {
     background-color: var(--color-modal-content);
-    max-width: 1200px;
+    max-width: 75rem;
     width: 100%;
-    border-radius: 12px;
+    border-radius: 0.75rem;
     overflow: hidden;
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
     display: flex;
     flex-direction: row;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 1.25rem 3.125rem rgba(0, 0, 0, 0.5);
 }
 
 .card_left {
@@ -491,7 +491,7 @@ h2 {
 
 .card_right {
     width: 60%;
-    padding: 40px;
+    padding: 2.5rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -500,15 +500,18 @@ h2 {
 
 .close-modal {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 1.25rem;
+    right: 1.875rem;
     color: var(--color-text-primary);
-    font-size: 40px;
+    font-size: 2.5rem;
     font-weight: bold;
     cursor: pointer;
     z-index: 10;
     transition: color 0.3s;
     line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
 .close-modal:hover {
@@ -522,13 +525,13 @@ h2 {
     font-size: 4rem;
     cursor: pointer;
     transition: color 0.3s ease, transform 0.3s ease;
-    padding: 0 20px;
+    padding: 0 1.25rem;
     z-index: 1001;
     font-family: var(--font-display);
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100px;
+    height: 6.25rem;
 }
 
 .modal-nav:hover {
@@ -537,17 +540,17 @@ h2 {
 }
 
 .modal-nav-prev {
-    margin-right: 10px;
+    margin-right: 0.625rem;
 }
 
 .modal-nav-next {
-    margin-left: 10px;
+    margin-left: 0.625rem;
 }
 
 #modal-title {
     font-family: var(--font-main);
     font-size: 3rem;
-    margin: 0 0 10px 0;
+    margin: 0 0 0.625rem 0;
     color: var(--color-text-primary);
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -559,10 +562,10 @@ h2 {
 .card_right__details ul {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px 0;
+    margin: 0 0 1.25rem 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 1.25rem;
     color: var(--color-primary);
     font-family: var(--font-main);
     font-size: 0.9rem;
@@ -645,16 +648,17 @@ h2 {
 
 /* Animation for movies released today */
 /* Movie Status Badges */
+/* Movie Status Badges */
 .movie-status-badge {
     position: absolute;
-    top: 15px;
+    top: 0.93rem;
     left: 50%;
     transform: translateX(-50%);
-    padding: 6px 12px;
+    padding: 0.375rem 0.75rem;
     background: rgba(15, 15, 15, 0.85);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border-radius: 20px;
+    border-radius: 1.25rem;
     font-family: var(--font-main);
     font-size: 0.7rem;
     font-weight: 700;
@@ -664,9 +668,9 @@ h2 {
     pointer-events: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.837);
+    box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.837);
 }
 
 .movie-card:hover .movie-status-badge {
@@ -680,12 +684,12 @@ h2 {
 
 .status-new::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 0.375rem;
+    height: 0.375rem;
     background-color: var(--color-primary);
     border-radius: 50%;
     display: block;
-    box-shadow: 0 0 8px rgba(243, 198, 35, 0.6);
+    box-shadow: 0 0 0.5rem rgba(243, 198, 35, 0.6);
     animation: pulseDot 2s infinite;
 }
 
@@ -696,8 +700,8 @@ h2 {
 
 .status-out::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 0.375rem;
+    height: 0.375rem;
     background-color: rgba(24, 202, 54, 0.423);
     border-radius: 50%;
     display: block;
@@ -713,7 +717,7 @@ h2 {
     70% {
         opacity: 0.8;
         transform: scale(1);
-        box-shadow: 0 0 0 6px rgba(243, 198, 35, 0);
+        box-shadow: 0 0 0 0.375rem rgba(243, 198, 35, 0);
     }
 
     100% {
@@ -727,25 +731,25 @@ h2 {
 .footer-container {
     display: flex;
     justify-content: center;
-    padding: 0 40px 40px 40px;
+    padding: 0 2.5rem 2.5rem 2.5rem;
     background-color: var(--color-bg-primary);
-    margin-top: 60px;
+    margin-top: 3.75rem;
 }
 
 .footer-content {
     background-color: var(--color-nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-radius: 40px;
-    padding: 20px 40px;
+    border-radius: 2.5rem;
+    padding: 1.25rem 2.5rem;
     border: 1px solid var(--color-border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    max-width: 1320px;
+    max-width: 82.5rem;
     position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.3);
 }
 
 .brand-logo-btn {
@@ -765,7 +769,7 @@ h2 {
 
 .brand-logo-btn:hover {
     color: var(--color-primary);
-    text-shadow: 0 0 20px rgba(243, 198, 35, 0.4);
+    text-shadow: 0 0 1.25rem rgba(243, 198, 35, 0.4);
     transform: scale(1.02);
 }
 
@@ -782,9 +786,9 @@ h2 {
     background-color: transparent;
     color: var(--color-primary);
     border: 1px solid rgba(243, 198, 35, 0.3);
-    border-radius: 50px;
+    border-radius: 3.125rem;
     cursor: pointer;
-    padding: 12px 28px;
+    padding: 0.75rem 1.75rem;
     font-family: var(--font-main);
     font-weight: 700;
     font-size: 0.9rem;
@@ -809,42 +813,42 @@ h2 {
     }
 
     15% {
-        transform: translate(20px, -30px) scale(1.1);
+        transform: translate(1.25rem, -1.875rem) scale(1.1);
         opacity: 1;
     }
 
     30% {
-        transform: translate(-15px, -60px) scale(1.2);
+        transform: translate(-0.93rem, -3.75rem) scale(1.2);
         opacity: 1;
     }
 
     45% {
-        transform: translate(25px, -90px) scale(1.3);
+        transform: translate(1.56rem, -5.625rem) scale(1.3);
         opacity: 1;
     }
 
     60% {
-        transform: translate(-10px, -120px) scale(1.4);
+        transform: translate(-0.625rem, -7.5rem) scale(1.4);
         opacity: 1;
     }
 
     75% {
-        transform: translate(15px, -150px) scale(1.5);
+        transform: translate(0.93rem, -9.375rem) scale(1.5);
         opacity: 1;
     }
 
     85% {
-        transform: translate(0, -170px) scale(1.8);
+        transform: translate(0, -10.625rem) scale(1.8);
         opacity: 1;
     }
 
     92% {
-        transform: translate(0, -175px) scale(2.2);
+        transform: translate(0, -10.93rem) scale(2.2);
         opacity: 0.8;
     }
 
     100% {
-        transform: translate(0, -180px) scale(0);
+        transform: translate(0, -11.25rem) scale(0);
         opacity: 0;
     }
 }
@@ -885,7 +889,7 @@ h2 {
 
 /* IMDb Button Styles */
 .card_right__button {
-    margin-top: 25px;
+    margin-top: 1.56rem;
 }
 
 .imdb-button {
@@ -895,29 +899,29 @@ h2 {
     font-family: var(--font-display);
     font-weight: 500;
     font-size: 1.4rem;
-    padding: 2px 12px;
-    border-radius: 4px;
+    padding: 0.125rem 0.75rem;
+    border-radius: 0.25rem;
     text-decoration: none;
     letter-spacing: 1px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.3);
 }
 
 /* Last Episode Section */
 .last-episode-section {
-    margin-top: 20px;
-    margin-bottom: 25px;
-    padding: 15px;
+    margin-top: 1.25rem;
+    margin-bottom: 1.56rem;
+    padding: 0.93rem;
     background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    border-left: 4px solid var(--color-primary);
+    border-radius: 0.75rem;
+    border-left: 0.25rem solid var(--color-primary);
 }
 
 .last-episode-section h4 {
     font-family: var(--font-main);
     font-size: 0.9rem;
     color: var(--color-primary);
-    margin: 0 0 8px 0;
+    margin: 0 0 0.5rem 0;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -925,7 +929,7 @@ h2 {
 .episode-details {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0.25rem;
 }
 
 .episode-name {
@@ -994,7 +998,7 @@ h2 {
 /* Minimalistic Genre Tag on Movie Card */
 .movie-genre-tag {
     position: absolute;
-    bottom: 15px;
+    bottom: 0.93rem;
     left: 50%;
     transform: translateX(-50%);
     color: rgba(255, 255, 255, 0.95);
@@ -1004,13 +1008,13 @@ h2 {
     text-transform: uppercase;
     letter-spacing: 1.5px;
     background: rgba(0, 0, 0, 0.5);
-    padding: 6px 14px;
-    border-radius: 100px;
+    padding: 0.375rem 0.875rem;
+    border-radius: 6.25rem;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     z-index: 2;
     pointer-events: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.2);
     transition: opacity 0.3s ease;
 }
 

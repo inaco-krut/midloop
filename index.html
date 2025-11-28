@@ -55,10 +55,10 @@
     </section>
 
     <!-- Movie Detail Modal -->
-    <div id="movie-modal" class="modal">
-      <button class="modal-nav modal-nav-prev" id="modal-prev">‹</button>
+    <div id="movie-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-nav modal-nav-prev" id="modal-prev" aria-label="Previous Item">‹</button>
       <div class="modal-content card">
-        <span class="close-modal">&times;</span>
+        <button class="close-modal" aria-label="Close Modal">&times;</button>
         <div class="card_left">
           <img id="modal-poster" src="" alt="">
         </div>
@@ -77,18 +77,20 @@
             </ul>
             <div id="modal-series-details-section" class="last-episode-section" style="display: none;">
               <h4 id="modal-series-details-heading">Series Details</h4>
-              <div class="episode-details">
-                <span id="modal-series-info-1" class="episode-name"></span>
-                <span id="modal-series-info-2" class="episode-info"></span>
-                <span id="modal-series-networks" class="episode-info"
-                  style="display: block; margin-top: 4px; color: #aaa; font-size: 0.9em;"></span>
+              <div class="episode-details-container"
+                style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div class="episode-details">
+                  <span id="modal-series-next-episode" class="episode-name" style="display: none;"></span>
+                  <span id="modal-series-info-1" class="episode-name"></span>
+                  <span id="modal-series-info-2" class="episode-info"></span>
+                  <span id="modal-series-networks" class="episode-info"
+                    style="display: block; margin-top: 4px; color: #aaa; font-size: 0.9em;"></span>
+                </div>
+                <a id="modal-imdb-link" href="#" target="_blank" class="imdb-button">IMDb</a>
               </div>
             </div>
             <div class="card_right__review">
               <p id="modal-overview"></p>
-            </div>
-            <div class="card_right__button">
-              <a id="modal-imdb-link" href="#" target="_blank" class="imdb-button">IMDb</a>
             </div>
           </div>
         </div>

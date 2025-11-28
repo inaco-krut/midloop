@@ -241,7 +241,7 @@ function normalizeMovie(rawMovie) {
     : TMDB_IMAGE_BASE + rawMovie.poster_path;
 
   // Handle release date
-  const releaseDate = rawMovie.digital_release_date || rawMovie.release_date;
+  const releaseDate = rawMovie.digital_release_date;
 
   return {
     id: rawMovie.id,
@@ -273,9 +273,23 @@ function normalizeTVShow(rawShow) {
 
   return {
     id: rawShow.id,
-    title: rawShow.name, // TV shows use 'name'
+    title: rawShow.title || rawShow.name, // TV shows use 'title' in our data, but 'name' in TMDB usually
     poster: poster,
-    releaseDate: rawShow.digital_release_date || rawShow.first_air_date,
+    releaseDate: (() => {
+      const firstAirDate = rawShow.first_air_date || rawShow.digital_release_date;
+      if (!firstAirDate) return null;
+
+      const firstAir = new Date(firstAirDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      firstAir.setHours(0, 0, 0, 0);
+
+      // If first air date is in the past (older than today), use next episode date
+      if (firstAir < today && rawShow.next_episode_date) {
+        return rawShow.next_episode_date;
+      }
+      return firstAirDate;
+    })(),
     rating: rawShow.vote_average,
     ratingMax: 10,
     genres: genres,
@@ -286,6 +300,8 @@ function normalizeTVShow(rawShow) {
       episodes: rawShow.number_of_episodes,
       networks: rawShow.networks,
       status: rawShow.release_status,
+      nextEpisodeDate: rawShow.next_episode_date,
+      creators: rawShow.created_by,
       type: 'tv-show'
     }
   };
@@ -355,7 +371,9 @@ const CATEGORY_CONFIG = {
   }
 };
 
-// In-memory cache
+// In-memory cache with Time-To-Live (TTL)
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 const dataCache = {
   data: {},
   timestamps: {},
@@ -371,6 +389,12 @@ const dataCache = {
 
   has(key) {
     return key in this.data;
+  },
+
+  isValid(key) {
+    if (!this.has(key)) return false;
+    const age = Date.now() - this.timestamps[key];
+    return age < CACHE_DURATION;
   },
 
   clear(key) {
@@ -393,8 +417,8 @@ function loadContent(category) {
     return;
   }
 
-  // CHECK CACHE FIRST
-  if (dataCache.has(category)) {
+  // CHECK CACHE FIRST (Respect TTL)
+  if (dataCache.isValid(category)) {
     // Fade out current content
     container.style.transition = 'opacity 0.2s ease';
     container.style.opacity = '0';
@@ -414,7 +438,8 @@ function loadContent(category) {
 
   // Wait for fade out
   setTimeout(() => {
-    fetch(config.dataFile)
+    // Add cache-busting timestamp to URL
+    fetch(`${config.dataFile}?t=${Date.now()}`)
       .then(response => {
         if (!response.ok) {
           // If file doesn't exist (e.g. books/music), show coming soon
@@ -485,10 +510,14 @@ function displayItems(items) {
 
     // Status Badge
     let releaseBadge = '';
+
+    // Check for "Returning Series" status in metadata
+    const isReturningSeries = item.metadata && item.metadata.status === 'Returning Series';
+
     if (isReleasedToday) {
       card.classList.add('released-today');
       releaseBadge = '<div class="movie-status-badge status-new">Released Today</div>';
-    } else if (isAlreadyOut) {
+    } else if (isAlreadyOut || isReturningSeries) {
       releaseBadge = '<div class="movie-status-badge status-out">Available</div>';
     }
 
@@ -552,7 +581,9 @@ function showItemDetails(item, index = 0) {
   const meta = item.metadata;
 
   // Populate Basic Info
-  document.getElementById('modal-poster').src = sanitizeURL(item.poster);
+  const modalPoster = document.getElementById('modal-poster');
+  modalPoster.src = sanitizeURL(item.poster);
+  modalPoster.alt = item.title;
   document.getElementById('modal-title').textContent = item.title;
   document.getElementById('modal-overview').textContent = item.description;
 
@@ -624,6 +655,7 @@ function showItemDetails(item, index = 0) {
   const info1 = document.getElementById('modal-series-info-1');
   const info2 = document.getElementById('modal-series-info-2');
   const info3 = document.getElementById('modal-series-networks');
+  const nextEpisodeElem = document.getElementById('modal-series-next-episode');
 
   // Hide specific list items that are now in details section
   document.getElementById('modal-seasons').style.display = 'none';
@@ -635,7 +667,25 @@ function showItemDetails(item, index = 0) {
     detailsHeading.textContent = 'Series Details';
     info1.textContent = `${meta.seasons || 0} Seasons • ${meta.episodes || 0} Episodes`;
     info2.textContent = `Status: ${meta.status || 'Unknown'}`;
-    info3.textContent = `Network: ${meta.networks ? meta.networks.join(', ') : 'N/A'}`;
+
+    const networks = meta.networks ? meta.networks.join(', ') : 'N/A';
+    const creators = meta.creators && meta.creators.length > 0 ? meta.creators.join(', ') : '';
+
+    info3.innerHTML = `Network: ${networks}${creators ? `<br>Created by: ${creators}` : ''}`;
+
+    if (meta.nextEpisodeDate) {
+      const nextEpDate = new Date(meta.nextEpisodeDate);
+      const formattedDate = nextEpDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      nextEpisodeElem.textContent = `Next Episode: ${formattedDate}`;
+      nextEpisodeElem.style.display = 'block';
+    } else {
+      nextEpisodeElem.style.display = 'none';
+    }
+
     detailsSection.style.display = 'block';
   } else if (meta.type === 'game') {
     detailsHeading.textContent = 'Game Details';
@@ -652,9 +702,60 @@ function showItemDetails(item, index = 0) {
     info3.textContent = devPub.join(' • ');
 
     detailsSection.style.display = 'block';
+    if (nextEpisodeElem) nextEpisodeElem.style.display = 'none';
   } else {
     // Movie
     detailsSection.style.display = 'none';
+
+    // For movies, we need to move the button out or show the section but hide details?
+    // Actually, since the button is NOW INSIDE the details section, we must show the section for movies too
+    // BUT hide the text details.
+
+    // Let's just create a "Movie Details" view or simply show the section with just the button.
+    // However, the prompt asked for TV shows specifically.
+    // If we hide detailsSection, the button is hidden for movies.
+    // We need to append the button back to card_right__details or handle it differently.
+
+    // Simpler fix: If it's a movie, we can't use the button inside that section if the section is hidden.
+    // So we should make the section visible but hide the text content?
+    // Or better, dynamically move the button?
+
+    // Let's try showing the section but hiding the text parts.
+    detailsHeading.style.display = 'none';
+    info1.style.display = 'none';
+    info2.style.display = 'none';
+    info3.style.display = 'none';
+    if (nextEpisodeElem) nextEpisodeElem.style.display = 'none';
+
+    // Ensure container is flex
+    const container = detailsSection.querySelector('.episode-details-container');
+    if (container) {
+      container.style.justifyContent = 'flex-start'; // Align button to left for Movies
+    }
+
+    detailsSection.style.display = 'block';
+    // Remove border/background for movies if desired, or keep it as a container for the button.
+    // To keep it clean for movies (just the button), let's remove the styling of the section temporarily?
+    // Or just let it be a box with a button.
+    detailsSection.style.background = 'transparent';
+    detailsSection.style.border = 'none';
+    detailsSection.style.padding = '0';
+  }
+
+  // Reset section styling for TV/Games
+  if (meta.type !== 'movie') {
+    detailsHeading.style.display = 'block';
+    info1.style.display = 'block';
+    info2.style.display = 'block';
+    info3.style.display = 'block';
+    detailsSection.style.background = ''; // Reset to CSS default
+    detailsSection.style.border = ''; // Reset to CSS default
+    detailsSection.style.padding = ''; // Reset to CSS default
+
+    const container = detailsSection.querySelector('.episode-details-container');
+    if (container) {
+      container.style.justifyContent = 'space-between'; // Align button to far right for TV/Games
+    }
   }
 
   // Store index
