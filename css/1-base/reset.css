@@ -6,7 +6,7 @@
 html {
     background-color: var(--color-wave-bottom);
     /* Fallback for below the wave */
-    font-size: 80%;
+    font-size: 90%;
     /* Global scale factor */
 }
 

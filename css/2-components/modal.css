@@ -132,10 +132,10 @@
 .card_right__details ul {
     list-style: none;
     padding: 0;
-    margin: 0 0 var(--space-md) 0;
+    margin: 0 0 var(--space-sm) 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xl);
+    gap: var(--space-sm);
     color: var(--color-sub-primary);
     font-family: var(--font-main);
     font-size: 0.9rem;
@@ -217,8 +217,8 @@
 
 .modal-overview-text {
     font-family: var(--font-main);
-    font-size: 1.2rem;
-    line-height: var(--leading-normal);
+    font-size: 1rem;
+    line-height: var(--leading-snug);
     color: var(--color-text-body);
     margin: 0;
     text-align: left;
@@ -350,8 +350,8 @@
 /* Modal Bookmark Button */
 #modal-bookmark-btn {
     position: absolute;
-    top: var(--space-xl);
-    left: var(--space-xl);
+    top: var(--space-sm);
+    left: var(--space-sm);
     z-index: 20;
     background: rgba(20, 20, 20, 0.6);
     backdrop-filter: blur(4px);
