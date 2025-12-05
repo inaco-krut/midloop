@@ -1089,9 +1089,6 @@ const CardComponents = {
         <div class="empty-state__content" style="max-width: 600px; padding: 1rem; text-align: center;">
           <h2 class="empty-state__title" style="font-family: var(--font-main); font-size: 2rem; color: var(--color-primary); margin-bottom: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">No Bookmarks Yet</h2>
           <p class="empty-state__text" style="font-family: var(--font-main); font-size: 1.2rem; color: var(--color-primary); line-height: 1.8; text-align: left; margin: 0;">
-            Stay on top of upcoming releases for your favorite media content. 
-            Simply add them by clicking the bookmark icon on any card. 
-            Release dates are continuously tracked so you'll know exactly when it's coming.
           </p>
         </div>
       </div>
