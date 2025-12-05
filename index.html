@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://image.tmdb.org https://images.igdb.com data:; connect-src 'self';">
+  <title>MIDLOOP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Wave Background -->
+  <div class="wave-background" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMin slice">
+      <rect class="wave-top" width="1440" height="400" />
+      <path class="wave-bottom" d="M0,120 
+           C360,150 720,90 1080,120 
+           C1260,135 1350,135 1440,120 
+           L1440,400 
+           L0,400 
+           Z" />
+    </svg>
+  </div>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="status-message" role="status" aria-live="polite" class="sr-only"></div>
+
+  <!-- Hero Spacer -->
+  <div class="hero-spacer"></div>
+
+  <!-- Movies Grid -->
+  <div id="main-content" class="movies-section">
+    <h2 class="section-title">
+      <span class="category-text">MOVIES</span>
+    </h2>
+
+    <!-- Navigation Menu -->
+    <nav class="top-nav">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#movies" class="nav-link active" data-category="movies">Movies</a>
+        </li>
+        <li class="nav-item">
+          <a href="#tv-shows" class="nav-link" data-category="tv-shows">TV Shows</a>
+        </li>
+        <li class="nav-item">
+          <a href="#games" class="nav-link" data-category="games">Games</a>
+        </li>
+        <li class="nav-item">
+          <a href="#books" class="nav-link" data-category="books">Books</a>
+        </li>
+        <li class="nav-item">
+          <a href="#music" class="nav-link" data-category="music">Music</a>
+        </li>
+      </ul>
+      <div class="bookmarks-icon-container">
+        <a href="#bookmarks" class="bookmarks-icon-link" data-category="bookmarks" aria-label="Bookmarks">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </a>
+      </div>
+    </nav>
+
+    <div id="movies-container" class="movies-grid">
+      <!-- Movie cards will be inserted here by JavaScript -->
+    </div>
+  </div>
+
+  <!-- Content Detail Modal -->
+  <div id="content-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-nav modal-nav-prev" id="modal-prev" aria-label="Previous Item">‹</button>
+    <div class="modal-content card">
+      <button class="close-modal" aria-label="Close Modal">&times;</button>
+      <div class="card_left">
+        <img id="modal-poster" src="" alt="">
+        <button id="modal-bookmark-btn" class="bookmark-btn" aria-label="Bookmark this item">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="card_right">
+        <div class="card_right__header">
+          <div class="modal-header-actions">
+            <h1 id="modal-title"></h1>
+          </div>
+          <div class="card_right__details">
+            <ul>
+              <li id="modal-year"></li>
+              <li id="modal-rating"></li>
+              <li id="modal-genres"></li>
+              <li id="modal-runtime"></li>
+              <li id="modal-seasons"></li>
+              <li id="modal-episodes"></li>
+              <li id="modal-type"></li>
+              <li id="modal-networks"></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Overview Section (Standard for all content) -->
+        <div class="modal-overview-section">
+          <h3 class="modal-section-heading">Overview</h3>
+          <p id="modal-overview-text" class="modal-overview-text">
+            <!-- Synopsis/Overview text will be populated here -->
+          </p>
+        </div>
+
+        <!-- Flexible details removed per request. Modal now shows only Overview and core fields. -->
+      </div>
+    </div>
+    <button class="modal-nav modal-nav-next" id="modal-next">›</button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-container">
+    <div class="footer-content">
+      <span class="brand-logo-text">MIDLOOP</span>
+      <span class="copyright-text">&copy; 2025 MIDLOOP</span>
+      <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+        BACK TO TOP
+      </button>
+    </div>
+  </footer>
+
+  <!-- Required libraries - MUST be loaded before script.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"
+    integrity="sha512-DkPsH9LzNzZaZjCszwKrooKwgjArJDiEjA5tTgr3YX4E6TYv93ICS8T41yFHJnnSmGpnf0Mvb5NhScYbwvhn2w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TimelineMax.min.js"
+    integrity="sha512-0xrMWUXzEAc+VY7k48pWd5YT6ig03p4KARKxs4Bqxb9atrcn2fV41fWs+YXTKb8lD2sbPAmZMjKENiyzM/Gagw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://unpkg.com/splitting/dist/splitting.min.js"></script>
+
+  <!-- Your script.js file -->
+  <script src="js/script.js"></script>
+</body>
+
+</html>
