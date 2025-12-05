@@ -47,8 +47,8 @@
 
 .scroll-to-top {
     background-color: transparent;
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
+    color: var(--color-sub-primary);
+    border: 1px solid var(--color-sub-primary);
     border-radius: 3.125rem;
     cursor: pointer;
     padding: 0.75rem 1.75rem;
@@ -61,9 +61,9 @@
 }
 
 .scroll-to-top:hover {
-    background-color: var(--color-primary);
+    background-color: var(--color-sub-primary);
     color: var(--color-modal-content);
-    border-color: var(--color-primary);
+    border-color: var(--color-sub-primary);
     box-shadow: 0 0 20px rgba(255, 65, 116, 0.2);
     transform: translateY(-2px);
 }
