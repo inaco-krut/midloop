@@ -27,6 +27,10 @@
     --radius-full: 9999px;
     /* 25px */
     --radius-md2: 1.4rem;
+    /* 22px */
+    --radius-md3: 15%;
+
+    --radius-md4: 1.10rem;
 
 
     /* Breakpoints (for reference in JS) */

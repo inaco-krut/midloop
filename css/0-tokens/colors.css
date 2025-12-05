@@ -34,7 +34,7 @@
   --color-border-medium: rgba(255, 255, 255, 0.15);
 
   /* Component-Specific Colors */
-  --color-nav-bg: #101010;
+  --color-nav-bg: #101010ad;
   --color-modal-overlay: rgba(0, 0, 0, 0.9);
   --color-modal-content: var(--color-black);
 

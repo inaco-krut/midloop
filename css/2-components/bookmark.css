@@ -1,5 +1,12 @@
-/* Bookmark Button Styles */
-.bookmark-btn {
+/* ============================================
+   BOOKMARK BUTTON STYLES
+   Location naming convention:
+   - .bookmark-btn-modal  → Modal bookmark button
+   - .bookmark-btn-card   → Card bookmark button
+   ============================================ */
+
+/* Modal Bookmark Button */
+.bookmark-btn-modal {
     background: transparent;
     border: none;
     color: var(--color-sub-primary);
@@ -11,12 +18,12 @@
     justify-content: center;
 }
 
-.bookmark-btn:hover {
+.bookmark-btn-modal:hover {
     color: var(--color-sub-primary);
     transform: scale(1.1);
 }
 
-.bookmark-btn svg {
+.bookmark-btn-modal svg {
     width: 2rem;
     height: 2rem;
     stroke-width: 2px;
@@ -24,17 +31,17 @@
     stroke: currentColor;
 }
 
-.bookmark-btn.active {
+.bookmark-btn-modal.active {
     color: var(--color-sub-primary);
 }
 
-.bookmark-btn.active svg {
+.bookmark-btn-modal.active svg {
     fill: var(--color-sub-primary);
     stroke: var(--color-sub-primary);
 }
 
-/* Card Bookmark Icon */
-.card-bookmark-icon {
+/* Card Bookmark Button */
+.bookmark-btn-card {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -43,7 +50,7 @@
     background: var(--color-overlay-frosted);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    border-radius: 50%;
+    border-radius: 20%;
     padding: 0.75rem;
     display: flex;
     align-items: center;
@@ -51,42 +58,35 @@
     opacity: 0;
     transition: all 0.3s ease;
     cursor: pointer;
-    border: 1px solid var(--color-border-subtle);
+    border: 2px solid var(--color-border-medium);
 }
 
-.card-bookmark-icon svg {
-    width: 2rem;
-    height: 2rem;
-    stroke-width: 2px;
+.bookmark-btn-card svg {
+    width: 1.8rem;
+    height: 1.4rem;
+    stroke-width: 1.5px;
     fill: none;
     stroke: currentColor;
 }
 
-.card-bookmark-icon:hover {
+.bookmark-btn-card:hover {
     color: var(--color-sub-primary);
     background: rgba(0, 0, 0, 0.8);
     transform: scale(1.1);
+    border: 1.5px solid var(--color-white);
 }
 
-.card-bookmark-icon.active {
+.bookmark-btn-card.active {
     color: var(--color-sub-primary);
     opacity: 1;
-    /* Always visible if bookmarked? Or just on hover? Prompt said "on hover" */
 }
 
-.card-bookmark-icon.active svg {
+.bookmark-btn-card.active svg {
     fill: var(--color-sub-primary);
     stroke: var(--color-sub-primary);
 }
 
-/* Show on hover */
-.content-card:hover .card-bookmark-icon {
+/* Show card bookmark on hover */
+.content-card:hover .bookmark-btn-card {
     opacity: 1;
 }
-
-/* Ensure active bookmarks are visible even without hover if desired, 
-   but user asked for "on hover". 
-   However, usually active bookmarks should be visible to know they are saved.
-   Let's keep it on hover for now as requested, but maybe make it always visible if active?
-   "I want the bookmark icon on hover for cards" -> implies hidden otherwise.
-*/
