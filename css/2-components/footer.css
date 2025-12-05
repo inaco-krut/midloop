@@ -15,7 +15,7 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: var(--radius-lg);
-    padding: var(--space-xl) var(--modal-padding);
+    padding: var(--space-md) var(--modal-padding);
     border: 1px solid var(--color-border-subtle);
     display: flex;
     align-items: center;
@@ -58,6 +58,9 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     transition: all var(--transition-base);
+    margin-left: 2rem;
+    /* pushes it to the far right */
+
 }
 
 .scroll-to-top:hover {

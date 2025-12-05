@@ -25,6 +25,9 @@
     --radius-lg: 10rem;
     /* 40px */
     --radius-full: 9999px;
+    /* 25px */
+    --radius-md2: 1.3rem;
+
 
     /* Breakpoints (for reference in JS) */
     --breakpoint-sm: 640px;

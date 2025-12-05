@@ -10,7 +10,7 @@
     margin-top: 0;
     margin-bottom: 5.75rem;
     position: sticky;
-    top: 1.18rem;
+    top: 3rem;
     z-index: var(--z-sticky);
     display: flex;
     justify-content: center;

@@ -6,7 +6,7 @@
 .movies-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(15.6rem, 1fr));
-    gap: 1.875rem;
+    gap: 1.500rem;
     margin-bottom: 3.75rem;
 }
 

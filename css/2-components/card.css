@@ -6,7 +6,7 @@
 /* Block */
 .content-card {
     background-color: transparent;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-md2);
     overflow: hidden;
     transition: transform var(--transition-base);
     cursor: pointer;
@@ -100,7 +100,6 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     line-height: var(--leading-snug);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     white-space: normal;
     overflow: hidden;
     display: -webkit-box;
@@ -161,7 +160,6 @@
     opacity: 0;
     transition: opacity var(--transition-base);
     pointer-events: none;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     line-height: 1.3;
 }
 

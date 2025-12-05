@@ -6,7 +6,7 @@
 :root {
   /* Brand Colors */
   --color-primary: #FF2751;
-  --color-sub-primary: #F3C623;
+  --color-sub-primary: #FABC3C;
   --color-primary-dark: #D4A91E;
   --color-primary-light: #FF2751;
 
@@ -16,7 +16,7 @@
   --color-gray-800: #161616;
   --color-gray-700: #1f1f1f;
   --color-gray-600: #393939;
-  --color-white: #ffffff;
+  --color-white: #e5e5e5;
 
   /* Semantic Colors - Background */
   --color-bg-primary: var(--color-gray-900);
@@ -34,7 +34,7 @@
   --color-border-medium: rgba(255, 255, 255, 0.15);
 
   /* Component-Specific Colors */
-  --color-nav-bg: rgba(0, 0, 0, 0.827);
+  --color-nav-bg: #101010;
   --color-modal-overlay: rgba(0, 0, 0, 0.9);
   --color-modal-content: var(--color-black);
 
@@ -49,6 +49,6 @@
   --color-hover: var(--color-primary);
 
   /* Wave Background Colors */
-  --color-wave-top: #FF2751;
-  --color-wave-bottom: #0a0a0a;
+  --color-wave-top: #D7263D;
+  --color-wave-bottom: #101010;
 }

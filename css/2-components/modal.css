@@ -217,8 +217,8 @@
 
 .modal-overview-text {
     font-family: var(--font-main);
-    font-size: 1rem;
-    line-height: var(--leading-snug);
+    font-size: 1.2rem;
+    line-height: var(--leading-normal);
     color: var(--color-text-body);
     margin: 0;
     text-align: left;

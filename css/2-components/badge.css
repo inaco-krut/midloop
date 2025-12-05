@@ -44,7 +44,7 @@
     font-size: 0.8rem;
     font-weight: var(--weight-bold);
     text-transform: uppercase;
-    color: var(--color-sub-primary);
+    color: var(--color-white);
     line-height: var(--leading-normal);
     margin-top: 0.5rem;
     text-align: center;
@@ -59,7 +59,7 @@
     font-size: 0.9rem;
     font-weight: var(--weight-bold);
     text-transform: uppercase;
-    color: var(--color-sub-primary);
+    color: var(--color-white);
     line-height: var(--leading-snug);
     margin-top: 0.5rem;
     text-align: center;
