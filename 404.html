@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIDLOOP</title>
+    <script>
+        // Redirect 404s to the index.html with the path preserved as a query parameter
+        // This allows the SPA to handle all routing
+        (function() {
+            const path = window.location.pathname;
+            const parts = path.split('/').filter(Boolean);
+            
+            // Only redirect if there's a path segment (not just root)
+            if (parts.length > 0 && !path.includes('.')) {
+                // Redirect to index with path in sessionStorage so the app can route properly
+                sessionStorage.redirect = path;
+                window.location.href = '/';
+            }
+        })();
+    </script>
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>

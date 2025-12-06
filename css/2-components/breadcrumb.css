@@ -1,0 +1,52 @@
+/* ============================================
+   BREADCRUMB COMPONENT
+   Breadcrumb navigation and content actions
+   ============================================ */
+
+/* Breadcrumb + Actions Bar */
+.content-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background: var(--layout-bg-body);
+    border-bottom: 1px solid var(--layout-bg-hover);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 13px;
+}
+
+.breadcrumb a {
+    color: var(--layout-text-muted);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--layout-text-white);
+}
+
+.content-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.action-btn {
+    background: var(--layout-bg-hover);
+    border: 1px solid var(--layout-border-color);
+    color: var(--layout-text-muted);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: var(--layout-border-color);
+    color: var(--layout-text-white);
+}
