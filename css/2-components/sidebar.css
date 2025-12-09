@@ -1,0 +1,125 @@
+/* ============================================================================
+   SIDEBAR COMPONENT
+   Sidebar menu navigation styling
+   ============================================================================ */
+
+/* Flash animation for bookmarks */
+@keyframes bookmarkFlash {
+    0% {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    50% {
+        color: var(--color-primary);
+        text-shadow: 0 0 10px var(--color-primary);
+    }
+    100% {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 8px 0;
+}
+
+.sidebar-menu li {
+    padding: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-menu li:last-child {
+    border-bottom: none;
+}
+
+/* Nav Links */
+.sidebar-menu a,
+.sidebar-menu .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    background: transparent;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu .nav-link:hover {
+    border-left-color: var(--color-primary);
+    padding-left: 12px;
+}
+
+.sidebar-menu a.active,
+.sidebar-menu .nav-link.active {
+    border-left-color: var(--color-primary);
+    padding-left: 12px;
+}
+
+.menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu a:hover .menu-item-left,
+.sidebar-menu .nav-link:hover .menu-item-left {
+    transform: translateX(2px);
+}
+
+.sidebar-menu a.active .menu-item-left,
+.sidebar-menu .nav-link.active .menu-item-left {
+    transform: translateX(2px);
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    padding: 0 15px;
+    text-align: center;
+}
+
+.sidebar-copyright {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+/* Bookmark flash animation */
+.nav-link.flashing {
+    animation: bookmarkFlash 0.6s ease-in-out;
+}
+
+.sidebar-copyright:hover {
+    color: var(--color-primary);
+}
+
+/* Collapsed sidebar footer */
+.sidebar.sidebar-collapsed .sidebar-footer {
+    display: none;
+}
+
+/* Or for fade out effect, use: */
+.sidebar-collapsed .sidebar-footer {
+    display: none;
+}
+
+/* Disabled submenu - always hidden */
+.sidebar-submenu.disabled {
+    display: none !important;
+}
+
+

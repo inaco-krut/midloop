@@ -1,0 +1,137 @@
+/* ============================================================================
+   SUBMENU COMPONENT
+   Reusable submenu styling for all navigation submenus
+   ============================================================================ */
+
+/* Main menu item with submenu */
+.sidebar-menu-item-with-submenu {
+    padding: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-menu-item-with-submenu:last-child {
+    border-bottom: none;
+}
+
+/* Container for nav link and submenu toggle */
+.nav-link-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Navigation link that navigates to category */
+.nav-link-group > .nav-link {
+    flex: 1;
+    padding: 12px 15px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-link-group > .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8);
+    border-left-color: var(--color-primary);
+}
+
+.nav-link-group > .nav-link.active {
+    color: rgba(255, 255, 255, 0.8);
+    border-left-color: var(--color-primary);
+}
+
+/* Submenu toggle button */
+.submenu-toggle {
+    padding: 12px 15px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submenu-toggle:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.submenu-arrow {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 16px;
+}
+
+.submenu-toggle[aria-expanded="true"] .submenu-arrow {
+    transform: rotate(90deg);
+}
+
+/* Submenu list */
+.sidebar-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-submenu:not([hidden]) {
+    max-height: 500px;
+}
+
+/* Submenu items */
+.nav-sublink {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px 10px 40px !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    border-left: 3px solid transparent !important;
+    cursor: pointer;
+}
+
+.nav-sublink-label {
+    flex: 1;
+}
+
+.nav-sublink-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+    display: block;
+    margin-left: -15px;
+    margin-bottom: 5px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-sublink:hover .nav-sublink-icon,
+.nav-sublink.active .nav-sublink-icon {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+.nav-sublink:hover {
+    border-left-color: var(--color-primary) !important;
+    padding-left: 37px !important;
+}
+
+.nav-sublink.active {
+    color: rgba(255, 255, 255, 0.5) !important;
+    border-left-color: var(--color-primary) !important;
+    padding-left: 37px !important;
+}

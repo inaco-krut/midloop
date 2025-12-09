@@ -1,0 +1,54 @@
+/* ============================================
+   LAYOUT TOKENS
+   Z-index, border radius, breakpoints, containers
+   ============================================ */
+
+:root {
+    /* Z-Index Scale */
+    --z-base: 1;
+    --z-dropdown: 10;
+    --z-card-overlay: 10;
+    --z-card-badge: 20;
+    --z-card-hover: 30;
+    --z-sticky: 100;
+    --z-overlay: 500;
+    --z-modal: 1000;
+    --z-modal-nav: 1001;
+    --z-toast: 2000;
+    --z-max: 9999;
+
+    /* Border Radius */
+    --radius-sm: 1rem;
+    /* 16px - increased from 12px */
+    --radius-md: 1.87rem;
+    /* 30px - increased from 25px */
+    --radius-lg: 12rem;
+    /* 48px - increased from 40px */
+    --radius-full: 9999px;
+    /* 25px */
+    --radius-md2: 1.68rem;
+    /* 27px - increased from 22px */
+    --radius-md3: 15%;
+
+    --radius-md4: 1.32rem;
+    /* 21px - increased from 17.6px */
+    
+    --radius-dashboard: 12px;
+    /* 12px - increased from 8px - Standard radius for dashboard layout cards */
+
+
+    /* Breakpoints (for reference in JS) */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* Container Widths */
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    --container-2xl: 87.5rem;
+    /* 1400px */
+}

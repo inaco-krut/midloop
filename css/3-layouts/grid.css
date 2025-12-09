@@ -1,0 +1,30 @@
+/* ============================================
+   GRID LAYOUT
+   Content grid layout - generic reusable system
+   ============================================ */
+
+.content-grid {
+    display: grid;
+    gap: var(--space-lg);
+    row-gap: var(--space-lg);
+    margin-bottom: 4rem;
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: var(--space-lg);
+    box-sizing: border-box;
+    width: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .content-grid {
+        grid-template-columns: repeat(auto-fill, minmax(9.375rem, 1fr));
+        gap: var(--space-lg);
+        width: 100%;
+    }
+
+    .grid-controls {
+        margin-left: 1.5rem;
+    }
+}
